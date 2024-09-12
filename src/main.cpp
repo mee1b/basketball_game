@@ -1,11 +1,12 @@
 #include <iostream>
+#include <fstream>
 #include <ctime>
 #include <string>
 #include <cstdlib>
 #include <windows.h>
 
 
-bool testingEnabled{};
+std::ofstream record;
 
 enum Shots
 {
@@ -67,6 +68,33 @@ enum testing
     UNTEST = 2
 };
 
+namespace test
+{
+    bool testingEnabled{};
+    const std::string TESTING_ENABLED = "РЕЖИМ ТЕСТИРОВЩИКА ВКЛЮЧЕН!\n";
+    const std::string CHOICE_TEAM_SPIRIT = "\nТЕСТОВОЕ МЕНЮ:\nВыберите уровень командного духа от -20 до 20: ";
+    const std::string CHOICE_SCENE = "Выебирте одну одну кат сцену цифрами от 1 до 3.\nКат сцена номер: ";
+    const std::string NONE_SCENE = "Переход к игре без кат сцен!\n";
+    const std::string TEST_THREE_PRESSING = "ТЕСТОВОЕ СООБЩЕНИЕ:\n1.Базовый шанс - 40%.\n2.Защита \"Прессинг\" - (-10%)\n3.Командный дух ";
+    const std::string TEST_THREE_PERSONAL_DEFENSE = "ТЕСТОВОЕ СООБЩЕНИЕ:\n1.Базовый шанс - 40%.\n2.Защита \"Личная опека\" - (+15%)\n3.Командный дух ";
+    const std::string TEST_THREE_ZONE_DEFENSE = "ТЕСТОВОЕ СООБЩЕНИЕ:\n1.Базовый шанс - 40%.\n2.Защита \"Зонная защита\" - (-10%)\n3.Командный дух ";
+    const std::string TEST_THREE_NONE_DEFENSE = "ТЕСТОВОЕ СООБЩЕНИЕ:\n1.Базовый шанс - 40%.\n2.Защита \"Нет защиты\" - (+20%)\n3.Командный дух ";
+    const std::string TEST_MEDIUM_PRESSING = "ТЕСТОВОЕ СООБЩЕНИЕ:\n1.Базовый шанс - 50%.\n2.Защита \"Прессинг\" - (-10%)\n3.Командный дух ";
+    const std::string TEST_MEDIUM_PERSONAL_DEFENSE = "ТЕСТОВОЕ СООБЩЕНИЕ:\n1.Базовый шанс - 50%.\n2.Защита \"Личная опека\" - (-10%)\n3.Командный дух ";
+    const std::string TEST_MEDIUM_ZONE_DEFENSE = "ТЕСТОВОЕ СООБЩЕНИЕ:\n1.Базовый шанс - 50%.\n2.Защита \"Зонная защита\" - (+15%)\n3.Командный дух ";
+    const std::string TEST_MEDIUM_NONE_DEFENSE = "ТЕСТОВОЕ СООБЩЕНИЕ:\n1.Базовый шанс - 50%.\n2.Защита \"Нет защиты\" - (+20%)\n3.Командный дух ";
+    const std::string TEST_LAY_UP_PRESSING = "ТЕСТОВОЕ СООБЩЕНИЕ:\n1.Базовый шанс - 60%.\n2.Защита \"Прессинг\" - (-10%)\n3.Командный дух ";
+    const std::string TEST_LAY_UP_PERSONAL_DEFENSE = "ТЕСТОВОЕ СООБЩЕНИЕ:\n1.Базовый шанс - 60%.\n2.Защита \"Личная опека\" - (-10%)\n3.Командный дух ";
+    const std::string TEST_LAY_UP_ZONE_DEFENSE = "ТЕСТОВОЕ СООБЩЕНИЕ:\n1.Базовый шанс - 60%.\n2.Защита \"Зонная защита\" - (+15%)\n3.Командный дух ";
+    const std::string TEST_LAY_UP_NONE_DEFENSE = "ТЕСТОВОЕ СООБЩЕНИЕ:\n1.Базовый шанс - 60%.\n2.Защита \"Нет защиты\" - (+20%)\n3.Командный дух ";
+    const std::string TEST_COMBINATION_PRESSING = "ТЕСТОВОЕ СООБЩЕНИЕ:\n1.Базовый шанс - 55%.\n2.Защита \"Прессинг\" - (-10%)\n3.Командный дух ";
+    const std::string TEST_COMBINATION_PERSONAL_DEFENSE = "ТЕСТОВОЕ СООБЩЕНИЕ : \n1.Базовый шанс - 55 % .\n2.Защита \"Личная опека\" - (+15%)\n3.Командный дух ";
+    const std::string TEST_COMBINATION_ZONE_DEFENSE = "ТЕСТОВОЕ СООБЩЕНИЕ:\n1.Базовый шанс - 55%.\n2.Защита \"Зонная защита\" - (-10%)\n3.Командный дух ";
+    const std::string TEST_COMBINATION_NONE_DEFENSE = "ТЕСТОВОЕ СООБЩЕНИЕ:\n1.Базовый шанс - 55%.\n2.Защита \"ЛНет защиты\" - (+20%)\n3.Командный дух ";
+    const std::string TEST_DIRTY = "ТЕСТОВОЕ СООБЩЕНИЕ:\nВероятность попадания 70%\n";
+    const std::string TEST_HAND_GOD = "ТЕСТОВОЕ СООБЩЕНИЕ:\nВероятность попадания 100%\n";
+}
+
 namespace menu
 {
     int startGame{};
@@ -78,6 +106,21 @@ namespace menu
     std::string rules{};
     std::string rulesShot{};
     std::string rulesDefense{};
+    const std::string CHOICE_MENU = "Выберите варинат запуска игры:\n1.Тестовый режим.\n2.Режим пользователя.\nВаш выбор: ";
+    const std::string REPEAT = "Не понимаю!\nВаш выбор: ";
+    const std::string OPPONENT_NAME_CHOICE = "Нажмите клавишу Enter, для стандартного названия противника или\nВведите название команды противника: ";
+    const std::string START_DEFENSE = "Вашей стартовой защитой будет...";
+    const std::string WIN_BALL_JUMP = "Судья подкидывает мяч вверх в центральном круге и...\nВбрасывание выигрывает команда: ";
+    const std::string TIMEOUT = "\nЗвучит свисток, сейчас команды уйдут на перерыв!\nУслышимся после небольшой паузы!\n\n";
+    const std::string SECOND_TIME = "Начинается второй тайм! ПОЕХАЛИ!!!\n\n";
+    const std::string FINAL = "Последние секунды матча истекли! Судья дает свисток!\nФинальный счет на табло:\n";
+    const std::string HOORAY = "Поздравляем с победой команду ";
+    const std::string DRAW = "Сегодня победитель не выявлен, но в следующий раз победит сильнейший!\n\n";
+    const std::string WELCOME = "Добро пожаловать в игру \"Баскетбол\"\n";
+    const std::string START_MENU = "1. Правила игры.\n2. Начать игру.\n3. Об авторе.\n4. Выйти из игры.\n\nДля продолжения выберете действие: ";
+    const std::string CHOICE_HINT = "Выберите режим подсказок:\n1.Опытный(без подсказок).\n2.Любитель(подсказки появляются по нажатию клавиши)\n3.Новичок(подсказки выводятся всегда)\n\nВаш выбор: ";
+    const std::string AUTHOR = "Студия разработки игр Dialas представляет.\nАвтор: Медведенко Егор(ник: mee1b).\nВерсия: 1.0.5.\n\n";
+    const std::string TABLO = "Счет: ";
 }
 
 namespace engine
@@ -117,6 +160,40 @@ namespace history
     const int ADD_SPIRIT_VICTORY{ 10 };
     const int REM_SPIRIT_FAIL{ -10 };
     const int NONE_RISC_SPIRIT{ -5 };
+    const std::string YOUR_TEAM_SPIRIT = "\nВаш командный дух равен ";
+}
+
+namespace attack
+{
+    const std::string SHOT_CHOICE = "Капитан! Какой бросок делаем в этой атаке? ";
+    const std::string SHOT_CHOICE_AND_HINT = "Капитан! Какой бросок делаем в этой атаке?(чтобы посмотреть виды бросков нажмите 5): ";
+    const std::string SUPERPOWER_HINT = "Если командных дух равен -10 или меньше:\n6.Грязная игра(три очка, плюс 10 к командному духу).\nЕсли командный дух равен 10 или больше:\n7.Рука бога(три очка, плюс 10 к командному духу).\n\n";
+    const std::string UNKNOW_TACTICS = "На тренировках мы не разбирали такие броски, капитан!\nДавай сыграем то, что мы уже знаем!\n";
+    const std::string OPEN_DIRTY = "6. Ваш командный дух падает, открыт прием \"Грязная игра\".\n";
+    const std::string OPEN_HAND = "7. Ваш командный дух на подъёме, открыт прием \"Рука бога\".\n";
+    const std::string THREE_POINT = "Трехочковый бросок!!!\n";
+    const std::string ADD_THREE = "Три очка в корзине!!!\n";
+    const std::string LOSE_SHOT = "Промах! Мяч в воздухе, кто же им завладеет?\n";
+    const std::string MEDIUM_SHOT = "Средний бросок!!!\n";
+    const std::string ADD_TWO = "Два очка в корзине!!!\n";
+    const std::string LAY_UP = "Это же лэй - апп!!!\n";
+    const std::string COMBINATION = "Смотрите, игроки разыгрывают комбинацию!!!\n";
+    const std::string ADD_HAND = "КАКАЯ ТРАЕКТОРИЯ ПОЛЕТА!!!\nНе бросок, а заглядение.\nТри очка в корзине!\n\n";
+    const std::string RESET_HAND = "Это был великолепный бросок!\nНо видимо он отнял много сил у игроков, перед следующим броском команде нужно собраться!\n\n";
+    const std::string ADD_DIRTY = "ЭТО ЖЕ ФОЛ!!!\nНо судья ничего не видит.\nТри очка в корзине!\n\n";
+    const std::string FAIL_DIRTY = "ЭТО ЖЕ ФОЛ!!!\nСудья назначает штрафной бросок в кольцо команды ";
+    const std::string REALESE_DIRTY_PENALTY = " реализует штрафной бросок!\n\n";
+    const std::string IN_ATTACK = " в атаке:\n";
+    const std::string REBOUND_IN_ATTACK = "\nПодбор в атаке за командой: ";
+    
+}
+
+namespace defend
+{
+    const std::string SHOW_HINT = "(Чтобы посмотреть схемы защиты нажмите 5.)";
+    const std::string QUESTION_DEFENSE = "Какой будет наша защита? ";
+    const std::string UNKNOW_TACTICS = "На тренировках мы не разбирали эти схемы, капитан!\nДавай сыграем то, что мы уже знаем!\n";
+    const std::string REBOUND_IN_DEFENSE = "\nПодбор в защите за командой: ";
 }
 
 struct Situation
@@ -126,6 +203,7 @@ struct Situation
     const int ACTION{ 1 };
     const int UNACTION{ 2 };
     std::string scene{};
+    std::string choice{};
     std::string riscNone{};
     std::string riscVictory{};
     std::string riscFail{};
@@ -151,7 +229,8 @@ struct Player
     std::string name{};
 };
 
-
+void recording(std::string comment);
+void recording(int comment);
 void startMenu();
 void hints();
 void author();
@@ -176,33 +255,41 @@ int main()
     SetConsoleCP(1251);
     SetConsoleOutputCP(1251);
     srand(static_cast<unsigned int>(time(0)));
+    record.open("text_game.txt");
+    record.close();
+    record.open("user_comment.txt");
+    record.close();
 
 
     Opponent opponent{};
     Player player{};
 
-    std::cout << "Выберите варинат запуска игры:\n1.Тестовый режим.\n2.Режим пользователя.\n";
-    std::cout << "Ваш выбор: ";
+    std::cout << menu::CHOICE_MENU;
+    recording(menu::CHOICE_MENU);
     std::cin >> engine::testingChoice;
+    recording(engine::testingChoice);
     while (engine::testingChoice < TEST || engine::testingChoice > UNTEST)
     {
-        std::cout << "Не понимаю!\nВаше выбор: ";
+        std::cout << menu::REPEAT;
+        recording(menu::REPEAT);
         std::cin >> engine::testingChoice;
+        recording(menu::REPEAT);
     }
     switch (engine::testingChoice)
     {
     case TEST:
-        testingEnabled = true;
+        test::testingEnabled = true;
         break;
     case UNTEST:
-        testingEnabled = false;
+        test::testingEnabled = false;
         break;
     }
     system("cls");
 
-    if (testingEnabled)
+    if (test::testingEnabled)
     {
-        std::cout << "РЕЖИМ ТЕСТИРОВЩИКА ВКЛЮЧЕН!\n";
+        std::cout << test::TESTING_ENABLED;
+        recording(test::TESTING_ENABLED);
         Sleep(1500);
         system("cls");
     }
@@ -216,23 +303,28 @@ int main()
 
     hints();
 
-    std::cout << "Нажмите клавишу Enter, для стандартного названия противника или\nВведите название команды противника: ";
+    std::cout << menu::OPPONENT_NAME_CHOICE;
+    recording(menu::OPPONENT_NAME_CHOICE);
     std::cin.ignore();
     std::getline(std::cin, opponent.name);
     if (opponent.name == "")
     {
         opponent.name = "Колледж Оклахомы";
     }
+    recording(opponent.name);
 
-    if (testingEnabled)
+    if (test::testingEnabled)
     {
-        std::cout << "\nТЕСТОВОЕ МЕНЮ:\nВыберите уровень командного духа от -20 до 20: ";
+        std::cout << test::CHOICE_TEAM_SPIRIT;
+        recording(test::CHOICE_TEAM_SPIRIT);
         std::cin >> player.teamSpirit;
+        recording(player.teamSpirit);
         system("cls");
-        std::cout << "Выебирте одну одну кат сцену цифрами от 1 до 3.\n";
-        std::cout << "Кат сцена номер: ";
+        std::cout << test::CHOICE_SCENE;
+        recording(test::CHOICE_SCENE);
         int show;
         std::cin >> show;
+        recording(show);
         switch (show)
         {
         case FIRST_STORY:
@@ -245,16 +337,21 @@ int main()
             situationThree(player.teamSpirit);
             break;
         default:
-            std::cout << "Переход к игре без кат сцен!\n";
+            std::cout << test::NONE_SCENE;
+            recording(test::NONE_SCENE);
+            Sleep(1000);
             system("cls");
             break;
         }
 
     }
     
-    std::cout << "Вашей стартовой защитой будет...";
+    std::cout << menu::START_DEFENSE;
+    recording(menu::START_DEFENSE);
     choiceDefense(player.defense);
-    player.name = "Дартмутский колледж";
+    recording(player.defense);
+    player.name = "Колледж Алабамы";
+    recording(player.name);
     std::cout << "\n";
 
     system("cls");
@@ -262,20 +359,26 @@ int main()
     jumpBall(menu::jump);
     if (menu::jump == PLAYER_BALL)
     {
-        std::cout << "Судья подкидывает мяч вверх в центральном круге и...\n";
-        std::cout << "Вбрасывание выигрывает команда: " << player.name << ".\n\n";
+        std::cout << menu::WIN_BALL_JUMP;
+        recording(menu::WIN_BALL_JUMP);
+        std::cout << player.name << ".\n\n";
+        recording(player.name);
     }
     else
     {
-        std::cout << "Судья подкидывает мяч вверх в центральном круге и...\n";
-        std::cout << "Вбрасывание выигрывает команда: " << opponent.name << ".\n\n";
+        std::cout << menu::WIN_BALL_JUMP;
+        recording(menu::WIN_BALL_JUMP);
+        std::cout << opponent.name << ".\n\n";
+        recording(opponent.name);
     }
 
     game(menu::jump, player, opponent);
-    std::cout << "\nЗвучит свисток, сейчас команды уйдут на перерыв!\nУслышимся после небольшой паузы!\n\n";
+    std::cout << menu::TIMEOUT;
+    recording(menu::TIMEOUT);
     system("pause");
     system("cls");
-    std::cout << "Начинается второй тайм! ПОЕХАЛИ!!!\n\n";
+    std::cout << menu::SECOND_TIME;
+    recording(menu::SECOND_TIME);
     if (menu::jump == PLAYER_BALL)
     {
         menu::jump = OPPONENT_BALL;
@@ -286,37 +389,76 @@ int main()
     }
     engine::period = engine::PERIOD_START;
     game(menu::jump, player, opponent);
-    std::cout << "Последние секунды матча истекли! Судья дает свисток!\nФинальный счет на табло:\n" << player.name << ' ' << player.score << ' ' << opponent.name << ": " << opponent.score << ".\n";
+    std::cout << menu::FINAL;
+    recording(menu::FINAL);
+    std::cout << player.name;
+    recording(player.name);
+    std::cout << ' ';
+    std::cout << player.score;
+    recording(player.score);
+    std::cout << ' ';
+    std::cout << opponent.name;
+    recording(opponent.name);
+    std::cout << ": ";
+    std::cout  << opponent.score << ".\n";
+    recording(opponent.score);
     if (player.score > opponent.score)
     {
-        std::cout << "Поздравляем команду " << player.name << " с победой!";
+        std::cout << menu::HOORAY;
+        recording(menu::HOORAY);
+        std::cout << player.name;
+        recording(player.name);
     }
     else if (player.score < opponent.score)
     {
-        std::cout << "Поздравляем команду " << opponent.name << " с победой!";
+        std::cout << menu::HOORAY;
+        recording(menu::HOORAY);
+        std::cout << opponent.name;
+        recording(opponent.name);
     }
     else
     {
-        std::cout << "Сегодня победитель не выявлен, но в следующий раз победит сильнейший!\n\n";
+        std::cout << menu::DRAW;
+        recording(menu::DRAW);
     }
     std::cout << std::endl;
     system("pause");
     return 0;
 }
 
+void recording(std::string comment)
+{
+    record.open("text_game.txt", std::ios::app);
+    if (record.is_open())
+    {
+        record << comment << std::endl;
+        record.close();
+    }
+}
+
+void recording(int comment)
+{
+    record.open("text_game.txt", std::ios::app);
+    if (record.is_open())
+    {
+        record << comment << std::endl;
+        record.close();
+    }
+}
+
 void startMenu()
 {
-    std::cout << "Добро пожаловать в игру \"Баскетбол\"\n";
-    std::cout << "1. Правила игры.\n";
-    std::cout << "2. Начать игру.\n";
-    std::cout << "3. Об авторе.\n";
-    std::cout << "4. Выйти из игры.\n\n";
-    std::cout << "Для продолжения выберете действие: ";
+    std::cout << menu::WELCOME;
+    recording(menu::WELCOME);
+    std::cout << menu::START_MENU;
+    recording(menu::START_MENU);
     std::cin >> menu::startGame;
+    recording(menu::startGame);
     std::cout << "\n";
     while (menu::startGame < menu::RULES_GAME || menu::startGame > menu::EXIT_GAME)
     {
-        std::cout << "Не понимаю!\nВыберете действие: ";
+        std::cout << menu::REPEAT;
+        recording(menu::REPEAT);
         std::cin >> menu::startGame;
     }
     if (menu::startGame == menu::RULES_GAME || menu::startGame == menu::AUTHOR_GAME)
@@ -328,24 +470,20 @@ void startMenu()
             {
                 system("cls");
                 gameRules();
-                std::cout << "1. Правила игры.\n";
-                std::cout << "2. Начать игру.\n";
-                std::cout << "3. Об авторе.\n";
-                std::cout << "4. Выйти из игры.\n\n";
-                std::cout << "Для продолжения выберете действие: ";
+                std::cout << menu::START_MENU;
+                recording(menu::START_MENU);
                 std::cin >> menu::startGame;
+                recording(menu::startGame);
                 std::cout << "\n";
             }
             else if (menu::startGame == menu::AUTHOR_GAME)
             {
                 system("cls");
                 author();
-                std::cout << "1. Правила игры.\n";
-                std::cout << "2. Начать игру.\n";
-                std::cout << "3. Об авторе.\n";
-                std::cout << "4. Выйти из игры.\n\n";
-                std::cout << "Для продолжения выберете действие: ";
+                std::cout << menu::START_MENU;
+                recording(menu::START_MENU);
                 std::cin >> menu::startGame;
+                recording(menu::startGame);
                 std::cout << "\n";
             }
         }
@@ -354,19 +492,22 @@ void startMenu()
 
 void hints()
 {
-    std::cout << "Выберите режим подсказок:\n1.Опытный(без подсказок).\n2.Любитель(подсказки появляются по нажатию клавиши)\n3.Новичок(подсказки выводятся всегда)\n\n";
-    std::cout << "Ваш выбор: ";
+    std::cout << menu::CHOICE_HINT;
+    recording(menu::CHOICE_HINT);
     std::cin >> menu::hint;
+    recording(menu::hint);
     while (menu::hint > NOOB || menu::hint < EXPERT)
     {
-        std::cout << "Не понимаю тебя!\nВыберите режим подсказок: ";
+        std::cout << menu::REPEAT;
+        recording(menu::REPEAT);
         std::cin >> menu::hint;
     }
 }
 
 void author()
 {
-    std::cout << "Студия разработки игр Dialas представляет.\nАвтор: Медведенко Егор(ник: mee1b).\nВерсия: 1.0.3.\n\n";
+    std::cout << menu::AUTHOR;
+    recording(menu::AUTHOR);
     system("pause");
     system("cls");
 }
@@ -397,28 +538,12 @@ void gameRulesRecord()
 void gameRules()
 {
     // Объясняет ввод с клавиатуры
-    menu::rules =
-        "Это баскетбольный клуб Дартмутского колледжа. "
-        "Ты будешь капитаном и плеймейкером нашей команды.\n"
-        "Игра длится 2 тайма по 4 минуты. Одна атака длится 24 секунды.\n\n";
     std::cout << menu::rules;
-    menu::rulesShot =
-        "Делайте броски следующим образом:\n"
-        "1. Дальний (трехочковый) бросок в прыжке;\n2. Средний (двухочковый) бросок в прыжке;\n3. Лэй - апп (два очка);\n4. Комбинация и бросок (два очка);\n\n"
-        "На попадание влияет:\n1. Базовый процент попадания.\n2. Защита.\n3. Командный дух.\n\n"
-        "Командный дух можно, как поднять(отличной игрой(когда у тебя больше очков, чем у соперника) и успешным решением жизненных вопросов команды).\n"
-        "Так и потерять(плохой игрой(когда у тебя меньше очков, чем у соперника или неудачними решениями).\n\n";
+    recording(menu::rules);
     std::cout << menu::rulesShot;
-    menu::rulesDefense =
-        "Обе команды будут использовать одну и ту же защиту.\nВыберите схему следующим образом:\n"
-        "1. Прессинг - эффективная защита (шанс всех бросков снижен на 10%);\n"
-        "2. Личная опека - отличная защита от средних и ближних бросков (шанс удачного среднего броска и лэй - аппа -10%),\n"
-        "но открывается огромный простор для дальних бросков и комбинаций (шанс удачного дальнего броска и комбинаций + 15 %);\n"
-        "3. Зонная защита - отличная защита от дальних бросков и комбинаций (шанс удачного дальнего броска и комбинации -10%),\n"
-        "но открывается огромный простор для лэй - аппов и средних бросков (шанс удачного лэй - аппа и средних бросков + 15%);\n"
-        "4. Нет защиты - команда отдыхает в защите (повышается шанс удачной реализации всех бросков +20%);\n"
-        "Чтобы изменить защиту, просто введите 0 в качестве следующего броска.\n\n";
+    recording(menu::rulesShot);
     std::cout << menu::rulesDefense;
+    recording(menu::rulesDefense);
     system("pause");
     system("cls");
 }
@@ -449,17 +574,21 @@ void situationOne(int& teamSpirit)
         "так что, если ты согласишься, это будет их первым выступлением.\n"
         "Билли незаметно, как ему кажется, толкает тебя локтем, призывая согласиться, но решать тебе.\n\n";
     std::cout << situation.scene;
+    recording(situation.scene);
     system("pause");
     system("cls");
 
-    std::cout << "Как же мне поступить?\n1. Принять предложение Кэти.\n2. Отказаться от предложения Кэти.\n";
-
-    std::cout << "Решай: ";
+    situation.choice = "Как же мне поступить?\n1. Принять предложение Кэти.\n2. Отказаться от предложения Кэти.\nРешай: ";
+    std::cout << situation.choice;
+    recording(situation.choice);
     std::cin >> situation.playerChoice;
+    recording(situation.playerChoice);
     while (situation.playerChoice > situation.UNACTION || situation.playerChoice < situation.ACTION)
     {
-        std::cout << "Не поимаю тебя!\nРешай: ";
+        std::cout << menu::REPEAT;
+        recording(menu::REPEAT);
         std::cin >> situation.playerChoice;
+        recording(situation.playerChoice);
     }
     
     situation.probalityVictory = rand() % 100 + 1;
@@ -474,12 +603,16 @@ void situationOne(int& teamSpirit)
             "но и подначивать ребят.\n"
             "Теперь вы просто не имеете права облажаться.\n\n";
         std::cout << situation.riscVictory;
+        recording(situation.riscVictory);
         teamSpirit += history::ADD_SPIRIT_VICTORY;
-        if (testingEnabled && teamSpirit > MAX_SPIRIT)
+        if (test::testingEnabled && teamSpirit > MAX_SPIRIT)
         {
             teamSpirit = MAX_SPIRIT;
         }
-        std::cout << "\nВаш командный дух равен " << teamSpirit << std::endl;
+        std::cout << history::YOUR_TEAM_SPIRIT;
+        recording(history::YOUR_TEAM_SPIRIT);
+        std::cout << teamSpirit << std::endl;
+        recording(teamSpirit);
         system("pause");
         system("cls");
     }
@@ -495,12 +628,16 @@ void situationOne(int& teamSpirit)
             "Оставшись без поддержки, члены вашей команды, особенно Уортингтон, повесили носы,\n"
             "так что тебе придётся постараться, чтобы расшевелить их.\n\n";
         std::cout << situation.riscFail;
+        recording(situation.riscFail);
         teamSpirit += history::REM_SPIRIT_FAIL;
-        if (testingEnabled && teamSpirit < MIN_SPIRIT)
+        if (test::testingEnabled && teamSpirit < MIN_SPIRIT)
         {
             teamSpirit = MIN_SPIRIT;
         }
-        std::cout << "\nВаш командный дух равен " << teamSpirit << std::endl;
+        std::cout << history::YOUR_TEAM_SPIRIT;
+        recording(history::YOUR_TEAM_SPIRIT);
+        std::cout << teamSpirit << std::endl;
+        recording(teamSpirit);
         system("pause");
         system("cls");
     }
@@ -520,12 +657,16 @@ void situationOne(int& teamSpirit)
             "особенно если у противника недостатка в мотивации не будет.\n"
             "— Да всё я понимаю, — хмуро пробормотал Билли. Дальше вы шли молча.\n\n";
         std::cout << situation.riscNone;
+        recording(situation.riscNone);
         teamSpirit += history::NONE_RISC_SPIRIT;
-        if (testingEnabled && teamSpirit < MIN_SPIRIT)
+        if (test::testingEnabled && teamSpirit < MIN_SPIRIT)
         {
             teamSpirit = MIN_SPIRIT;
         }
-        std::cout << "\nВаш командный дух равен " << teamSpirit << std::endl;
+        std::cout << history::YOUR_TEAM_SPIRIT;
+        recording(history::YOUR_TEAM_SPIRIT);
+        std::cout << teamSpirit << std::endl;
+        recording(teamSpirit);
         system("pause");
         system("cls");
     }
@@ -547,17 +688,21 @@ void situationTwo(int& teamSpirit)
         "Быть может, эта сообщение — знак свыше, и стоит пригласить, наконец, Алисон на свидание?\n"
         "Ты нашёл в контактах  номер, и задумался: а вдруг она откажет, или согласится, а потом что то пойдёт не так?\n";
     std::cout << situation.scene;
+    recording(situation.scene);
     system("pause");
     system("cls");
 
-    std::cout << "Как же мне поступить?\n1. Позвонить Алисон.\n2. Не звонить, вдруг ничего не получится.\n";
-
-    std::cout << "Решай: ";
+    situation.choice = "Как же мне поступить?\n1. Позвонить Алисон.\n2. Не звонить, вдруг ничего не получится.\nРешай: ";
+    std::cout << situation.choice;
+    recording(situation.choice);
     std::cin >> situation.playerChoice;
+    recording(situation.playerChoice);
     while (situation.playerChoice > situation.UNACTION || situation.playerChoice < situation.ACTION)
     {
-        std::cout << "Не поимаю тебя!\nРешай: ";
+        std::cout << menu::REPEAT;
+        recording(menu::REPEAT);
         std::cin >> situation.playerChoice;
+        recording(situation.playerChoice);
     }
 
     situation.probalityVictory = rand() % 100 + 1;
@@ -573,12 +718,16 @@ void situationTwo(int& teamSpirit)
             "а когда вы прощались, даже разрешила себя поцеловать.\n"
             "Так что домой ты летел, как на крыльях, думая, что завтра вы должны оставить от соперников только мокрое место!\n";
         std::cout << situation.riscVictory;
+        recording(situation.riscVictory);
         teamSpirit += history::ADD_SPIRIT_VICTORY;
-        if (testingEnabled && teamSpirit > MAX_SPIRIT)
+        if (test::testingEnabled && teamSpirit > MAX_SPIRIT)
         {
             teamSpirit = MAX_SPIRIT;
         }
-        std::cout << "\nВаш командный дух равен " << teamSpirit << std::endl;
+        std::cout << history::YOUR_TEAM_SPIRIT;
+        recording(history::YOUR_TEAM_SPIRIT);
+        std::cout << teamSpirit << std::endl;
+        recording(teamSpirit);
         system("pause");
         system("cls");
     }
@@ -598,12 +747,16 @@ void situationTwo(int& teamSpirit)
             "Ты пригласил девушку на завтрашний матч, но она ответила, что у неё много дел из-за переезда.\n"
             "Нужно было подготовиться, продумать тактику игры, но настроения не было, так что ты решил лечь спать.\n";
         std::cout << situation.riscFail;
+        recording(situation.riscFail);
         teamSpirit += history::REM_SPIRIT_FAIL;
-        if (testingEnabled && teamSpirit < MIN_SPIRIT)
+        if (test::testingEnabled && teamSpirit < MIN_SPIRIT)
         {
             teamSpirit = MIN_SPIRIT;
         }
-        std::cout << "\nВаш командный дух равен " << teamSpirit << std::endl;
+        std::cout << history::YOUR_TEAM_SPIRIT;
+        recording(history::YOUR_TEAM_SPIRIT);
+        std::cout << teamSpirit << std::endl;
+        recording(teamSpirit);
         system("pause");
         system("cls");
     }
@@ -615,12 +768,16 @@ void situationTwo(int& teamSpirit)
             "но мысли снова и снова возвращались к Алисон.\n"
             "Ты проснулся с головной болью, так как заснуть удалось лишь под утро.\n";
         std::cout << situation.riscNone;
+        recording(situation.riscNone);
         teamSpirit += history::NONE_RISC_SPIRIT;
-        if (testingEnabled && teamSpirit < MIN_SPIRIT)
+        if (test::testingEnabled && teamSpirit < MIN_SPIRIT)
         {
             teamSpirit = MIN_SPIRIT;
         }
-        std::cout << "\nВаш командный дух равен " << teamSpirit << std::endl;
+        std::cout << history::YOUR_TEAM_SPIRIT;
+        recording(history::YOUR_TEAM_SPIRIT);
+        std::cout << teamSpirit << std::endl;
+        recording(teamSpirit);
         system("pause");
         system("cls");
     }
@@ -645,17 +802,21 @@ void situationThree(int& teamSpirit)
         "что кто-нибудь из ребят даст списать, либо же остаться дома и основательно подготовиться.\n"
         "Но в этом случае ребята обоснованно обидятся, что повлияет на климат в команде.\n";
     std::cout << situation.scene;
+    recording(situation.scene);
     system("pause");
     system("cls");
 
-    std::cout << "Как же мне поступить?\n1. Поехать на тренировку.\n2. Остаться дома и подготовится.\n";
-
-    std::cout << "Решай: ";
+    situation.choice = "Как же мне поступить?\n1. Поехать на тренировку.\n2. Остаться дома и подготовится.\nРешай: ";
+    std::cout << situation.choice;
+    recording(situation.choice);
     std::cin >> situation.playerChoice;
+    recording(situation.playerChoice);
     while (situation.playerChoice > situation.UNACTION || situation.playerChoice < situation.ACTION)
     {
-        std::cout << "Не поимаю тебя!\nРешай: ";
+        std::cout << menu::REPEAT;
+        recording(menu::REPEAT);
         std::cin >> situation.playerChoice;
+        recording(situation.playerChoice);
     }
 
     situation.probalityVictory = rand() % 100 + 1;
@@ -671,12 +832,16 @@ void situationThree(int& teamSpirit)
             "Твой приятель Джейкоб не только поделился материалом,\n"
             "но и растолковал парочку непонятных моментов, так что проблем быть не должно.\n";
         std::cout << situation.riscVictory;
+        recording(situation.riscVictory);
         teamSpirit += history::ADD_SPIRIT_VICTORY;
-        if (testingEnabled && teamSpirit > MAX_SPIRIT)
+        if (test::testingEnabled && teamSpirit > MAX_SPIRIT)
         {
             teamSpirit = MAX_SPIRIT;
         }
-        std::cout << "\nВаш командный дух равен " << teamSpirit << std::endl;
+        std::cout << history::YOUR_TEAM_SPIRIT;
+        recording(history::YOUR_TEAM_SPIRIT);
+        std::cout << teamSpirit << std::endl;
+        recording(teamSpirit);
         system("pause");
         system("cls");
     }
@@ -691,12 +856,16 @@ void situationThree(int& teamSpirit)
             "Кроме того, ты повздорил с Джейкобом, парнем, который мог бы помочь тебе с уроками,\n"
             "так что теперь придётся выкручиваться самому.\n";
         std::cout << situation.riscFail;
+        recording(situation.riscFail);
         teamSpirit += history::REM_SPIRIT_FAIL;
-        if (testingEnabled && teamSpirit < MIN_SPIRIT)
+        if (test::testingEnabled && teamSpirit < MIN_SPIRIT)
         {
             teamSpirit = MIN_SPIRIT;
         }
-        std::cout << "\nВаш командный дух равен " << teamSpirit << std::endl;
+        std::cout << history::YOUR_TEAM_SPIRIT;
+        recording(history::YOUR_TEAM_SPIRIT);
+        std::cout << teamSpirit << std::endl;
+        recording(teamSpirit);
         system("pause");
         system("cls");
     }
@@ -708,12 +877,16 @@ void situationThree(int& teamSpirit)
             "Ты накидал текстом, что именно им нужно отработать к следующей игре,\n"
             "конечно, вживую было бы лучше, ну да ничего, должны справиться.\n";
         std::cout << situation.riscNone;
+        recording(situation.riscNone);
         teamSpirit += history::NONE_RISC_SPIRIT;
-        if (testingEnabled && teamSpirit < MIN_SPIRIT)
+        if (test::testingEnabled && teamSpirit < MIN_SPIRIT)
         {
             teamSpirit = MIN_SPIRIT;
         }
-        std::cout << "\nВаш командный дух равен " << teamSpirit << std::endl;
+        std::cout << history::YOUR_TEAM_SPIRIT;
+        recording(history::YOUR_TEAM_SPIRIT);
+        std::cout << teamSpirit << std::endl;
+        recording(teamSpirit);
         system("pause");
         system("cls");
     }
@@ -728,25 +901,35 @@ void choiceDefense(int& defense)
     }
     else if (menu::hint == AMATEUR)
     {
-        std::cout << "(Чтобы посмотреть схемы защиты нажмите 5.)";
+        std::cout << defend::SHOW_HINT;
+        recording(defend::SHOW_HINT);
         std::cin >> defense;
+        recording(defense);
         while (defense == RULES_DEFENSE)
         {
             std::cout << menu::rulesDefense;
-            std::cout << "Какой будет наша защита? ";
+            recording(menu::rulesDefense);
+            std::cout << defend::QUESTION_DEFENSE;
+            recording(defend::QUESTION_DEFENSE);
             std::cin >> defense;
+            recording(defense);
         }
     }
     else if (menu::hint == NOOB)
     {
         std::cout << "\n" << menu::rulesDefense;
+        recording(menu::rulesDefense);
         std::cin >> defense;
+        recording(defense);
     }
     while (defense < PRESSING || defense > NONE_DEFENSE)
     {
-        std::cout << "На тренировках мы не разбирали эти схемы, капитан!\nДавай сыграем то, что мы уже знаем!\n";
-        std::cout << "Какой будет наша защита? ";
+        std::cout << defend::UNKNOW_TACTICS;
+        recording(defend::UNKNOW_TACTICS);
+        std::cout << defend::QUESTION_DEFENSE;
+        recording(defend::QUESTION_DEFENSE);
         std::cin >> defense;
+        recording(defense);
     }
 }
 
@@ -778,23 +961,31 @@ void attackShot(int& shot, int teamSpirit)
     switch (menu::hint)
     {
     case EXPERT:
-        std::cout << "Капитан! Какой бросок делаем в этой атаке? ";
+        std::cout << attack::SHOT_CHOICE;
+        recording(attack::SHOT_CHOICE);
         break;
     case AMATEUR:
-        std::cout << "Капитан! Какой бросок делаем в этой атаке?(чтобы посмотреть виды бросков нажмите 5): ";
+        std::cout << attack::SHOT_CHOICE_AND_HINT;
+        recording(attack::SHOT_CHOICE_AND_HINT);
         break;
     case NOOB:
         std::cout << menu::rulesShot;
-        std::cout << "Капитан! Какой бросок делаем в этой атаке? ";
+        recording(menu::rulesShot);
+        std::cout << attack::SHOT_CHOICE;
+        recording(attack::SHOT_CHOICE);
     }
     std::cin >> shot;
+    recording(shot);
 
     while (shot == RULES_SHOT)
     {
         std::cout << menu::rulesShot;
-        std::cout << "Если командных дух равен -10 или меньше:\n6.Грязная игра(три очка, плюс 10 к командному духу).\nЕсли командный дух равен 10 или больше:\n7.Рука бога(три очка, плюс 10 к командному духу).\n\n";
-        std::cout << "Капитан! Какой бросок делаем в этой атаке? ";
+        std::cout << attack::SUPERPOWER_HINT;
+        recording(attack::SUPERPOWER_HINT);
+        std::cout << attack::SHOT_CHOICE;
+        recording(attack::SHOT_CHOICE);
         std::cin >> shot;
+        recording(shot);
     }
     
     if (shot == DIRTY_SHOT && teamSpirit <= DIRTY_SPIRIT)
@@ -807,9 +998,20 @@ void attackShot(int& shot, int teamSpirit)
     }
     while (shot < CHOICE_DEFENSE || shot > COMBINATIONT_SHOT)
     {
-        std::cout << "На тренировках мы не разбирали такие броски, капитан!\nДавай сыграем то, что мы уже знаем!\n";
-        std::cout << "Какой бросок делаем в этой атаке? ";
+        if (shot == DIRTY_SHOT && teamSpirit <= DIRTY_SPIRIT)
+        {
+            return;
+        }
+        else if (shot == HAND_GOD_SHOT && teamSpirit >= GOD_SPIRIT)
+        {
+            return;
+        }
+        std::cout << attack::UNKNOW_TACTICS;
+        recording(attack::UNKNOW_TACTICS);
+        std::cout << attack::SHOT_CHOICE;
+        recording(attack::SHOT_CHOICE);
         std::cin >> shot;
+        recording(shot);
     }
 }
 
@@ -833,14 +1035,19 @@ bool playerAttack(Player& player, Opponent& opponent)
         player.teamSpirit = MIN_SPIRIT;
     }
 
-    std::cout << "Наш командный дух равен " << player.teamSpirit << std::endl;
+    std::cout << history::YOUR_TEAM_SPIRIT;
+    recording(history::YOUR_TEAM_SPIRIT);
+    std::cout << player.teamSpirit << std::endl;
+    recording(player.teamSpirit);
     if (player.teamSpirit <= DIRTY_SPIRIT && (menu::hint == AMATEUR || menu::hint == NOOB))
     {
-        std::cout << "6. Ваш командный дух падает, открыт прием \"Грязная игра\".\n";
+        std::cout << attack::OPEN_DIRTY;
+        recording(attack::OPEN_DIRTY);
     }
     else if (player.teamSpirit >= GOD_SPIRIT && (menu::hint == AMATEUR || menu::hint == NOOB))
     {
-        std::cout << "7. Ваш командный дух на подъёме, открыт прием \"Рука бога\".\n";
+        std::cout << attack::OPEN_HAND;
+        recording(attack::OPEN_HAND);
     }
     attackShot(player.shot, player.teamSpirit);
     std::cout << "\n";
@@ -848,7 +1055,8 @@ bool playerAttack(Player& player, Opponent& opponent)
     {
         if (player.shot == CHOICE_DEFENSE)
         {
-            std::cout << "\nКапитан, какую схему защиты играем? ";
+            std::cout << defend::QUESTION_DEFENSE;
+            recording(defend::QUESTION_DEFENSE);
             choiceDefense(player.defense);
             attackShot(player.shot, player.teamSpirit);
         }
@@ -856,76 +1064,98 @@ bool playerAttack(Player& player, Opponent& opponent)
     if (player.shot == THREE_POINT_SHOT)
     {
         //Шанс трехочкового 40% - базовый
-        std::cout << "Трехочковый бросок!!!\n";
+        std::cout << attack::THREE_POINT;
+        recording(attack::THREE_POINT);
         probabilityHitPlayer(player.hit, player.teamSpirit);
         switch (player.defense)
         {
         case PRESSING:
-            if (testingEnabled)
+            if (test::testingEnabled)
             {
-                std::cout << "ТЕСТОВОЕ СООБЩЕНИЕ:\n1.Базовый шанс - 40%.\n2.Защита \"Прессинг\" - (-10%)\n3.Командный дух " << player.teamSpirit << "%\n";
+                std::cout << test::TEST_THREE_PRESSING;
+                recording(test::TEST_THREE_PRESSING);
+                std::cout << player.teamSpirit << "\n";
+                recording(player.teamSpirit);
             }
             if (player.hit > engine::THREE_POINT_AND_PRESSING)
             {
-                std::cout << "Три очка в корзине!!!\n";
+                std::cout << attack::ADD_THREE;
+                recording(attack::ADD_THREE);
                 player.score += engine::THREE_POINT;
                 score(player.score, opponent.score);
                 return true;
             }
             else
             {
-                std::cout << "Промах! Мяч в воздухе, кто же им завладеет?\n";
+                std::cout << attack::LOSE_SHOT;
+                recording(attack::LOSE_SHOT);
                 return false;
             }
         case PERSONAL_DEFENSE:
-            if (testingEnabled)
+            if (test::testingEnabled)
             {
-                std::cout << "ТЕСТОВОЕ СООБЩЕНИЕ:\n1.Базовый шанс - 40%.\n2.Защита \"Личная опека\" - (+15%)\n3.Командный дух " << player.teamSpirit << "%\n";
+                std::cout << test::TEST_THREE_PERSONAL_DEFENSE;
+                recording(test::TEST_THREE_PERSONAL_DEFENSE);
+                std::cout << player.teamSpirit << "\n";
+                recording(player.teamSpirit);
             }
             if (player.hit > engine::THREE_POINT_AND_PERSONAL_DEFENSE)
             {
-                std::cout << "Три очка в корзине!!!\n";
+                std::cout << attack::ADD_THREE;
+                recording(attack::ADD_THREE);
                 player.score += engine::THREE_POINT;
                 score(player.score, opponent.score);
                 return true;
             }
             else
             {
-                std::cout << "Промах! Мяч в воздухе, кто же им завладеет?\n";
+                std::cout << attack::LOSE_SHOT;
+                recording(attack::LOSE_SHOT);
                 return false;
             }
         case ZONE_DEFENSE:
-            if (testingEnabled)
+            if (test::testingEnabled)
             {
-                std::cout << "ТЕСТОВОЕ СООБЩЕНИЕ:\n1.Базовый шанс - 40%.\n2.Защита \"Зонная защита\" - (-10%)\n3.Командный дух " << player.teamSpirit << "%\n";
+                std::cout << test::TEST_THREE_ZONE_DEFENSE;
+                recording(test::TEST_THREE_ZONE_DEFENSE);
+                std::cout << player.teamSpirit << "\n";
+                recording(player.teamSpirit);
+
             }
             if (player.hit > engine::THREE_POINT_AND_ZONE_DEFENSE)
             {
-                std::cout << "Три очка в корзине!!!\n";
+                std::cout << attack::ADD_THREE;
+                recording(attack::ADD_THREE);
                 player.score += engine::THREE_POINT;
                 score(player.score, opponent.score);
                 return true;
             }
             else
             {
-                std::cout << "Промах! Мяч в воздухе, кто же им завладеет?\n";
+                std::cout << attack::LOSE_SHOT;
+                recording(attack::LOSE_SHOT);
                 return false;
             }
         case NONE_DEFENSE:
-            if (testingEnabled)
+            if (test::testingEnabled)
             {
-                std::cout << "ТЕСТОВОЕ СООБЩЕНИЕ:\n1.Базовый шанс - 40%.\n2.Защита \"Нет защиты\" - (+20%)\n3.Командный дух " << player.teamSpirit << "%\n";
+                std::cout << test::TEST_THREE_NONE_DEFENSE;
+                recording(test::TEST_THREE_NONE_DEFENSE);
+                std::cout << player.teamSpirit << "\n";
+                recording(player.teamSpirit);
             }
             if (player.hit > engine::THREE_POINT_AND_NONE_DEFENSE)
             {
-                std::cout << "Три очка в корзине!!!\n";
+                std::cout << attack::ADD_THREE;
+                recording(attack::ADD_THREE);
                 player.score += engine::THREE_POINT;
                 score(player.score, opponent.score);
                 return true;
             }
             else
             {
-                std::cout << "Промах! Мяч в воздухе, кто же им завладеет?\n";
+                std::cout << attack::LOSE_SHOT;
+                recording(attack::LOSE_SHOT);
                 return false;
             }
         }
@@ -934,76 +1164,97 @@ bool playerAttack(Player& player, Opponent& opponent)
     if (player.shot == MEDIUM_SHOT)
     {
         //Шанс двухочкового 50% - базовый
-        std::cout << "Средний бросок!!!\n";
+        std::cout << attack::MEDIUM_SHOT;
+        recording(attack::MEDIUM_SHOT);
         probabilityHitPlayer(player.hit, player.teamSpirit);
         switch (player.defense)
         {
         case PRESSING:
-            if (testingEnabled)
+            if (test::testingEnabled)
             {
-                std::cout << "ТЕСТОВОЕ СООБЩЕНИЕ:\n1.Базовый шанс - 50%.\n2.Защита \"Прессинг\" - (-10%)\n3.Командный дух " << player.teamSpirit << "%\n";
+                std::cout << test::TEST_MEDIUM_PRESSING;
+                recording(test::TEST_MEDIUM_PRESSING);
+                std::cout << player.teamSpirit << "\n";
+                recording(player.teamSpirit);
             }
             if (player.hit > engine::MEDIUM_SHOT_AND_PRESSING)
             {
-                std::cout << "Два очка в корзине!!!\n";
+                std::cout << attack::ADD_TWO;
+                recording(attack::ADD_TWO);
                 player.score += engine::TWO_POINT;
                 score(player.score, opponent.score);
                 return true;
             }
             else
             {
-                std::cout << "Промах! Мяч в воздухе, кто же им завладеет?\n";
+                std::cout << attack::LOSE_SHOT;
+                recording(attack::LOSE_SHOT);
                 return false;
             }
         case PERSONAL_DEFENSE:
-            if (testingEnabled)
+            if (test::testingEnabled)
             {
-                std::cout << "ТЕСТОВОЕ СООБЩЕНИЕ:\n1.Базовый шанс - 50%.\n2.Защита \"Личная опека\" - (-10%)\n3.Командный дух " << player.teamSpirit << "%\n";
+                std::cout << test::TEST_MEDIUM_PERSONAL_DEFENSE;
+                recording(test::TEST_MEDIUM_PERSONAL_DEFENSE);
+                std::cout << player.teamSpirit << "\n";
+                recording(player.teamSpirit);
             }
             if (player.hit > engine::MEDIUM_SHOT_AND_PERSONAL_DEFENSE)
             {
-                std::cout << "Два очка в корзине!!!\n";
+                std::cout << attack::ADD_TWO;
+                recording(attack::ADD_TWO);
                 player.score += engine::TWO_POINT;
                 score(player.score, opponent.score);
                 return true;
             }
             else
             {
-                std::cout << "Промах! Мяч в воздухе, кто же им завладеет?\n";
+                std::cout << attack::LOSE_SHOT;
+                recording(attack::LOSE_SHOT);
                 return false;
             }
         case ZONE_DEFENSE:
-            if (testingEnabled)
+            if (test::testingEnabled)
             {
-                std::cout << "ТЕСТОВОЕ СООБЩЕНИЕ:\n1.Базовый шанс - 50%.\n2.Защита \"Зонная защита\" - (+15%)\n3.Командный дух " << player.teamSpirit << "%\n";
+                std::cout << test::TEST_MEDIUM_ZONE_DEFENSE;
+                recording(test::TEST_MEDIUM_ZONE_DEFENSE);
+                std::cout << player.teamSpirit << "\n";
+                recording(player.teamSpirit);
             }
             if (player.hit > engine::MEDIUM_SHOT_AND_ZONE_DEFENSE)
             {
-                std::cout << "Два очка в корзине!!!\n";
+                std::cout << attack::ADD_TWO;
+                recording(attack::ADD_TWO);
                 player.score += engine::TWO_POINT;
                 score(player.score, opponent.score);
                 return true;
             }
             else
             {
-                std::cout << "Промах! Мяч в воздухе, кто же им завладеет?\n";
+                std::cout << attack::LOSE_SHOT;
+                recording(attack::LOSE_SHOT);
                 return false;
             }
         case NONE_DEFENSE:
-            if (testingEnabled)
+            if (test::testingEnabled)
             {
-                std::cout << "ТЕСТОВОЕ СООБЩЕНИЕ:\n1.Базовый шанс - 50%.\n2.Защита \"Нет защиты\" - (+20%)\n3.Командный дух " << player.teamSpirit << "%\n";
+                std::cout << test::TEST_MEDIUM_NONE_DEFENSE;
+                recording(test::TEST_MEDIUM_NONE_DEFENSE);
+                std::cout << player.teamSpirit << "\n";
+                recording(player.teamSpirit);
             }
             if (player.hit > engine::MEDIUM_SHOT_AND_NONE_DEFENSE)
             {
-                std::cout << "Два очка в корзине!!!\n";
+                std::cout << attack::ADD_TWO;
+                recording(attack::ADD_TWO);
                 player.score += engine::TWO_POINT;
                 score(player.score, opponent.score);
                 return true;
             }
             else
             {
-                std::cout << "Промах! Мяч в воздухе, кто же им завладеет?\n";
+                std::cout << attack::LOSE_SHOT;
+                recording(attack::LOSE_SHOT);
                 return false;
             }
         }
@@ -1011,76 +1262,97 @@ bool playerAttack(Player& player, Opponent& opponent)
     if (player.shot == LAY_UP_SHOT)
     {
         //Шанс лэй - аппа 60% - базовый
-        std::cout << "Это же лэй - апп!!!\n";
+        std::cout << attack::LAY_UP;
+        recording(attack::LAY_UP);
         probabilityHitPlayer(player.hit, player.teamSpirit);
         switch (player.defense)
         {
         case PRESSING:
-            if (testingEnabled)
+            if (test::testingEnabled)
             {
-                std::cout << "ТЕСТОВОЕ СООБЩЕНИЕ:\n1.Базовый шанс - 60%.\n2.Защита \"Прессинг\" - (-10%)\n3.Командный дух " << player.teamSpirit << "%\n";
+                std::cout << test::TEST_LAY_UP_PRESSING;
+                recording(test::TEST_LAY_UP_PRESSING);
+                std::cout << player.teamSpirit << "\n";
+                recording(player.teamSpirit);
             }
             if (player.hit > engine::LAY_UP_AND_PRESSING)
             {
-                std::cout << "Два очка в корзине!!!\n";
+                std::cout << attack::ADD_TWO;
+                recording(attack::ADD_TWO);
                 player.score += engine::TWO_POINT;
                 score(player.score, opponent.score);
                 return true;
             }
             else
             {
-                std::cout << "Промах! Мяч в воздухе, кто же им завладеет?\n";
+                std::cout << attack::LOSE_SHOT;
+                recording(attack::LOSE_SHOT);
                 return false;
             }
         case PERSONAL_DEFENSE:
-            if (testingEnabled)
+            if (test::testingEnabled)
             {
-                std::cout << "ТЕСТОВОЕ СООБЩЕНИЕ:\n1.Базовый шанс - 60%.\n2.Защита \"Личная опека\" - (-10%)\n3.Командный дух " << player.teamSpirit << "%\n";
+                std::cout << test::TEST_LAY_UP_PERSONAL_DEFENSE;
+                recording(test::TEST_LAY_UP_PERSONAL_DEFENSE);
+                std::cout << player.teamSpirit << "\n";
+                recording(player.teamSpirit);
             }
             if (player.hit > engine::LAY_UP_AND_PERSONAL_DEFENSE)
             {
-                std::cout << "Два очка в корзине!!!\n";
+                std::cout << attack::ADD_TWO;
+                recording(attack::ADD_TWO);
                 player.score += engine::TWO_POINT;
                 score(player.score, opponent.score);
                 return true;
             }
             else
             {
-                std::cout << "Промах! Мяч в воздухе, кто же им завладеет?\n";
+                std::cout << attack::LOSE_SHOT;
+                recording(attack::LOSE_SHOT);
                 return false;
             }
         case ZONE_DEFENSE:
-            if (testingEnabled)
+            if (test::testingEnabled)
             {
-                std::cout << "ТЕСТОВОЕ СООБЩЕНИЕ:\n1.Базовый шанс - 60%.\n2.Защита \"Зонная защита\" - (+15%)\n3.Командный дух " << player.teamSpirit << "%\n";
+                std::cout << test::TEST_LAY_UP_ZONE_DEFENSE;
+                recording(test::TEST_LAY_UP_ZONE_DEFENSE);
+                std::cout << player.teamSpirit << "\n";
+                recording(player.teamSpirit);
             }
             if (player.hit > engine::LAY_UP_AND_ZONE_DEFENSE)
             {
-                std::cout << "Два очка в корзине!!!\n";
+                std::cout << attack::ADD_TWO;
+                recording(attack::ADD_TWO);
                 player.score += engine::TWO_POINT;
                 score(player.score, opponent.score);
                 return true;
             }
             else
             {
-                std::cout << "Промах! Мяч в воздухе, кто же им завладеет?\n";
+                std::cout << attack::LOSE_SHOT;
+                recording(attack::LOSE_SHOT);
                 return false;
             }
         case NONE_DEFENSE:
-            if (testingEnabled)
+            if (test::testingEnabled)
             {
-                std::cout << "ТЕСТОВОЕ СООБЩЕНИЕ:\n1.Базовый шанс - 60%.\n2.Защита \"Нет защиты\" - (+20%)\n3.Командный дух " << player.teamSpirit << "%\n";
+                std::cout << test::TEST_LAY_UP_NONE_DEFENSE;
+                recording(test::TEST_LAY_UP_NONE_DEFENSE);
+                std::cout << player.teamSpirit << "\n";
+                recording(player.teamSpirit);
             }
             if (player.hit > engine::LAY_UP_AND_NONE_DEFENSE)
             {
-                std::cout << "Два очка в корзине!!!\n";
+                std::cout << attack::ADD_TWO;
+                recording(attack::ADD_TWO);
                 player.score += engine::TWO_POINT;
                 score(player.score, opponent.score);
                 return true;
             }
             else
             {
-                std::cout << "Промах! Мяч в воздухе, кто же им завладеет?\n";
+                std::cout << attack::LOSE_SHOT;
+                recording(attack::LOSE_SHOT);
                 return false;
             }
         }
@@ -1088,98 +1360,127 @@ bool playerAttack(Player& player, Opponent& opponent)
     if (player.shot == COMBINATIONT_SHOT)
     {
         //Шанс комбинации 55% - базовый
-        std::cout << "Смотрите, игроки разыгрывают комбинацию!!!\n";
+        std::cout << attack::COMBINATION;
+        recording(attack::COMBINATION);
         probabilityHitPlayer(player.hit, player.teamSpirit);
         switch (player.defense)
         {
         case PRESSING:
-            if (testingEnabled)
+            if (test::testingEnabled)
             {
-                std::cout << "ТЕСТОВОЕ СООБЩЕНИЕ:\n1.Базовый шанс - 55%.\n2.Защита \"Прессинг\" - (-10%)\n3.Командный дух " << player.teamSpirit << "%\n";
+                std::cout << test::TEST_COMBINATION_PRESSING;
+                recording(test::TEST_COMBINATION_PRESSING);
+                std::cout << player.teamSpirit << "\n";
+                recording(player.teamSpirit);
             }
             if (player.hit > engine::COMBINATION_AND_PRESSING)
             {
-                std::cout << "Два очка в корзине!!!\n";
+                std::cout << attack::ADD_TWO;
+                recording(attack::ADD_TWO);
                 player.score += engine::TWO_POINT;
                 score(player.score, opponent.score);
                 return true;
             }
             else
             {
-                std::cout << "Промах! Мяч в воздухе, кто же им завладеет?\n";
+                std::cout << attack::LOSE_SHOT;
+                recording(attack::LOSE_SHOT);
                 return false;
             }
         case PERSONAL_DEFENSE:
-            if (testingEnabled)
+            if (test::testingEnabled)
             {
-                std::cout << "ТЕСТОВОЕ СООБЩЕНИЕ:\n1.Базовый шанс - 55%.\n2.Защита \"Личная опека\" - (+15%)\n3.Командный дух " << player.teamSpirit << "%\n";
+                std::cout << test::TEST_COMBINATION_PERSONAL_DEFENSE;
+                recording(test::TEST_COMBINATION_PERSONAL_DEFENSE);
+                std::cout << player.teamSpirit << "\n";
+                recording(player.teamSpirit);
             }
             if (player.hit > engine::COMBINATION_AND_PERSONAL_DEFENSE)
             {
-                std::cout << "Два очка в корзине!!!\n";
+                std::cout << attack::ADD_TWO;
+                recording(attack::ADD_TWO);
                 player.score += engine::TWO_POINT;
                 score(player.score, opponent.score);
                 return true;
             }
             else
             {
-                std::cout << "Промах! Мяч в воздухе, кто же им завладеет?\n";
+                std::cout << attack::LOSE_SHOT;
+                recording(attack::LOSE_SHOT);
                 return false;
             }
         case ZONE_DEFENSE:
-            if (testingEnabled)
+            if (test::testingEnabled)
             {
-                std::cout << "ТЕСТОВОЕ СООБЩЕНИЕ:\n1.Базовый шанс - 55%.\n2.Защита \"Зонная защита\" - (-10%)\n3.Командный дух " << player.teamSpirit << "%\n";
+                std::cout << test::TEST_COMBINATION_ZONE_DEFENSE;
+                recording(test::TEST_COMBINATION_ZONE_DEFENSE);
+                std::cout << player.teamSpirit << "\n";
+                recording(player.teamSpirit);
             }
             if (player.hit > engine::COMBINATION_AND_ZONE_DEFENSE)
             {
-                std::cout << "Два очка в корзине!!!\n";
+                std::cout << attack::ADD_TWO;
+                recording(attack::ADD_TWO);
                 player.score += engine::TWO_POINT;
                 score(player.score, opponent.score);
                 return true;
             }
             else
             {
-                std::cout << "Промах! Мяч в воздухе, кто же им завладеет?\n";
+                std::cout << attack::LOSE_SHOT;
+                recording(attack::LOSE_SHOT);
                 return false;
             }
         case NONE_DEFENSE:
-            if (testingEnabled)
+            if (test::testingEnabled)
             {
-                std::cout << "ТЕСТОВОЕ СООБЩЕНИЕ:\n1.Базовый шанс - 55%.\n2.Защита \"ЛНет защиты\" - (+20%)\n3.Командный дух " << player.teamSpirit << "%\n";
+                std::cout << test::TEST_COMBINATION_NONE_DEFENSE;
+                recording(test::TEST_COMBINATION_NONE_DEFENSE);
+                std::cout << player.teamSpirit << "\n";
+                recording(player.teamSpirit);
             }
             if (player.hit > engine::COMBINATION_AND_NONE_DEFENSE)
             {
-                std::cout << "Два очка в корзине!!!\n";
+                std::cout << attack::ADD_TWO;
+                recording(attack::ADD_TWO);
                 player.score += engine::TWO_POINT;
                 score(player.score, opponent.score);
                 return true;
             }
             else
             {
-                std::cout << "Промах! Мяч в воздухе, кто же им завладеет?\n";
+                std::cout << attack::LOSE_SHOT;
+                recording(attack::LOSE_SHOT);
                 return false;
             }
         }
     }
     if (player.shot == DIRTY_SHOT && player.teamSpirit <= DIRTY_SPIRIT)
     {
-        if (testingEnabled)
+        if (test::testingEnabled)
         {
-            std::cout << "ТЕСТОВОЕ СООБЩЕНИЕ:\nВероятность попадания 70%\n";
+            std::cout << test::TEST_DIRTY;
+            recording(test::TEST_DIRTY);
         }
         player.probalityDirtyGame = rand() % 100 + 1;
         if (player.probalityDirtyGame >= player.PROCENT_DIRTY_GAME)
         {
-            std::cout << "ЭТО ЖЕ ФОЛ!!!\nНо судья ничего не видит.\nТри очка в корзине!\n\n";
+            std::cout << attack::ADD_DIRTY;
+            recording(attack::ADD_DIRTY);
             player.score += engine::THREE_POINT;
             score(player.score, opponent.score);
             player.teamSpirit += history::ADD_SPIRIT_VICTORY;
         }
         else
         {
-            std::cout << "ЭТО ЖЕ ФОЛ!!!\nСудья назначает штрафной бросок в кольцо команды " << player.name << '\n';
-            std::cout << "Команда " << opponent.name << " реализует штрафной бросок!\n\n";
+            std::cout << attack::FAIL_DIRTY;
+            recording(attack::FAIL_DIRTY);
+            std::cout << player.name << '\n';
+            recording(player.name);
+            std::cout << opponent.name;
+            recording(opponent.name);
+            std::cout << attack::REALESE_DIRTY_PENALTY;
+            recording(attack::REALESE_DIRTY_PENALTY);
             opponent.score += engine::FREE_THROW_POINT;
             score(player.score, opponent.score); 
         }
@@ -1187,13 +1488,16 @@ bool playerAttack(Player& player, Opponent& opponent)
     }
     if (player.shot == HAND_GOD_SHOT && player.teamSpirit >= GOD_SPIRIT)
     {
-        if (testingEnabled)
+        if (test::testingEnabled)
         {
-            std::cout << "ТЕСТОВОЕ СООБЩЕНИЕ:\nВероятность попадания 100%\n";
+            std::cout << test::TEST_HAND_GOD;
+            recording(test::TEST_HAND_GOD);
         }
-        std::cout << "КАКАЯ ТРАЕКТОРИЯ ПОЛЕТА!!!\nНе бросок, а заглядение.\nТри очка в корзине!\n\n";
+        std::cout << attack::ADD_HAND;
+        recording(attack::ADD_HAND);
         player.score += engine::THREE_POINT;
-        std::cout << "Это был великолепный бросок!\nНо видимо он отнял много сил у игроков, перед следующим броском команде нужно собраться!\n\n";
+        std::cout << attack::RESET_HAND;
+        recording(attack::RESET_HAND);
         score(player.score, opponent.score);
         player.teamSpirit += history::REM_SPIRIT_FAIL;
         return true;
@@ -1205,64 +1509,76 @@ bool playerAttack(Player& player, Opponent& opponent)
 bool opponentAttack(Player& player, Opponent& opponent)
 {
     opponent.shot = (rand() % 4) + 1;
-    std::cout << opponent.name << " в атаке:\n";
+    std::cout << opponent.name;
+    recording(player.name);
+    std::cout << attack::IN_ATTACK;
+    recording(attack::IN_ATTACK);
     if (opponent.shot == THREE_POINT_SHOT)
     {
         //Шанс трехочкового 40% - базовый
-        std::cout << "Трехочковый бросок!!!\n";
+        std::cout << attack::THREE_POINT;
+        recording(attack::THREE_POINT);
         probabilityHitOpponent(opponent.hit);
         switch (player.defense)
         {
         case PRESSING:
             if (opponent.hit > engine::THREE_POINT_AND_PRESSING)
             {
-                std::cout << "Три очка в корзине!!!\n";
-                opponent.score += engine::THREE_POINT;
+                std::cout << attack::ADD_THREE;
+                recording(attack::ADD_THREE);
+                player.score += engine::THREE_POINT;
                 score(player.score, opponent.score);
                 return true;
             }
             else
             {
-                std::cout << "Промах! Мяч в воздухе, кто же им завладеет?\n";
+                std::cout << attack::LOSE_SHOT;
+                recording(attack::LOSE_SHOT);
                 return false;
             }
         case PERSONAL_DEFENSE:
             if (opponent.hit > engine::LAY_UP_AND_PERSONAL_DEFENSE)
             {
-                std::cout << "Три очка в корзине!!!\n";
-                opponent.score += engine::THREE_POINT;
+                std::cout << attack::ADD_THREE;
+                recording(attack::ADD_THREE);
+                player.score += engine::THREE_POINT;
                 score(player.score, opponent.score);
                 return true;
             }
             else
             {
-                std::cout << "Промах! Мяч в воздухе, кто же им завладеет?\n";
+                std::cout << attack::LOSE_SHOT;
+                recording(attack::LOSE_SHOT);
                 return false;
             }
         case ZONE_DEFENSE:
             if (opponent.hit > engine::THREE_POINT_AND_ZONE_DEFENSE)
             {
-                std::cout << "Три очка в корзине!!!\n";
-                opponent.score += engine::THREE_POINT;
+                std::cout << attack::ADD_THREE;
+                recording(attack::ADD_THREE);
+                player.score += engine::THREE_POINT;
                 score(player.score, opponent.score);
                 return true;
             }
             else
             {
-                std::cout << "Промах! Мяч в воздухе, кто же им завладеет?\n";
+                std::cout << attack::LOSE_SHOT;
+                recording(attack::LOSE_SHOT);
                 return false;
             }
         case NONE_DEFENSE:
             if (opponent.hit > engine::THREE_POINT_AND_NONE_DEFENSE)
             {
-                std::cout << "Три очка в корзине!!!\n";
-                opponent.score += engine::THREE_POINT;
+                std::cout << attack::ADD_THREE;
+                recording(attack::ADD_THREE);
+                player.score += engine::THREE_POINT;
                 score(player.score, opponent.score);
                 return true;
             }
             else
             {
-                std::cout << "Промах! Мяч в воздухе, кто же им завладеет?\n";
+                std::cout << attack::LOSE_SHOT;
+                recording(attack::LOSE_SHOT);
                 return false;
             }
         }
@@ -1271,60 +1587,69 @@ bool opponentAttack(Player& player, Opponent& opponent)
     if (opponent.shot == MEDIUM_SHOT)
     {
         //Шанс двухочкового 50% - базовый
-        std::cout << "Средний бросок!!!\n";
+        std::cout << attack::MEDIUM_SHOT;
+        recording(attack::MEDIUM_SHOT);
         probabilityHitOpponent(opponent.hit);
         switch (player.defense)
         {
         case PRESSING:
             if (opponent.hit > engine::MEDIUM_SHOT_AND_PRESSING)
             {
-                std::cout << "Два очка в корзине!!!\n";
+                std::cout << attack::ADD_TWO;
+                recording(attack::ADD_TWO);
                 opponent.score += engine::TWO_POINT;
                 score(player.score, opponent.score);
                 return true;
             }
             else
             {
-                std::cout << "Промах! Мяч в воздухе, кто же им завладеет?\n";
+                std::cout << attack::LOSE_SHOT;
+                recording(attack::LOSE_SHOT);
                 return false;
             }
         case PERSONAL_DEFENSE:
             if (opponent.hit > engine::MEDIUM_SHOT_AND_PERSONAL_DEFENSE)
             {
-                std::cout << "Два очка в корзине!!!\n";
+                std::cout << attack::ADD_TWO;
+                recording(attack::ADD_TWO);
                 opponent.score += engine::TWO_POINT;
                 score(player.score, opponent.score);
                 return true;
             }
             else
             {
-                std::cout << "Промах! Мяч в воздухе, кто же им завладеет?\n";
+                std::cout << attack::LOSE_SHOT;
+                recording(attack::LOSE_SHOT);
                 return false;
             }
         case ZONE_DEFENSE:
             if (opponent.hit > engine::MEDIUM_SHOT_AND_ZONE_DEFENSE)
             {
-                std::cout << "Два очка в корзине!!!\n";
+                std::cout << attack::ADD_TWO;
+                recording(attack::ADD_TWO);
                 opponent.score += engine::TWO_POINT;
                 score(player.score, opponent.score);
                 return true;
             }
             else
             {
-                std::cout << "Промах! Мяч в воздухе, кто же им завладеет?\n";
+                std::cout << attack::LOSE_SHOT;
+                recording(attack::LOSE_SHOT);
                 return false;
             }
         case NONE_DEFENSE:
             if (opponent.hit > engine::MEDIUM_SHOT_AND_NONE_DEFENSE)
             {
-                std::cout << "Два очка в корзине!!!\n";
+                std::cout << attack::ADD_TWO;
+                recording(attack::ADD_TWO);
                 opponent.score += engine::TWO_POINT;
                 score(player.score, opponent.score);
                 return true;
             }
             else
             {
-                std::cout << "Промах! Мяч в воздухе, кто же им завладеет?\n";
+                std::cout << attack::LOSE_SHOT;
+                recording(attack::LOSE_SHOT);
                 return false;
             }
         }
@@ -1332,60 +1657,69 @@ bool opponentAttack(Player& player, Opponent& opponent)
     if (opponent.shot == LAY_UP_SHOT)
     {
         //Шанс лэй - аппа 60% - базовый
-        std::cout << "Это же лэй - апп!!!\n";
+        std::cout << attack::LAY_UP;
+        recording(attack::LAY_UP);
         probabilityHitOpponent(opponent.hit);
         switch (player.defense)
         {
         case PRESSING:
             if (opponent.hit > engine::LAY_UP_AND_PRESSING)
             {
-                std::cout << "Два очка в корзине!!!\n";
+                std::cout << attack::ADD_TWO;
+                recording(attack::ADD_TWO);
                 opponent.score += engine::TWO_POINT;
                 score(player.score, opponent.score);
                 return true;
             }
             else
             {
-                std::cout << "Промах! Мяч в воздухе, кто же им завладеет?\n";
+                std::cout << attack::LOSE_SHOT;
+                recording(attack::LOSE_SHOT);
                 return false;
             }
         case PERSONAL_DEFENSE:
             if (opponent.hit > engine::LAY_UP_AND_PERSONAL_DEFENSE)
             {
-                std::cout << "Два очка в корзине!!!\n";
+                std::cout << attack::ADD_TWO;
+                recording(attack::ADD_TWO);
                 opponent.score += engine::TWO_POINT;
                 score(player.score, opponent.score);
                 return true;
             }
             else
             {
-                std::cout << "Промах! Мяч в воздухе, кто же им завладеет?\n";
+                std::cout << attack::LOSE_SHOT;
+                recording(attack::LOSE_SHOT);
                 return false;
             }
         case ZONE_DEFENSE:
             if (opponent.hit > engine::LAY_UP_AND_ZONE_DEFENSE)
             {
-                std::cout << "Два очка в корзине!!!\n";
+                std::cout << attack::ADD_TWO;
+                recording(attack::ADD_TWO);
                 opponent.score += engine::TWO_POINT;
                 score(player.score, opponent.score);
                 return true;
             }
             else
             {
-                std::cout << "Промах! Мяч в воздухе, кто же им завладеет?\n";
+                std::cout << attack::LOSE_SHOT;
+                recording(attack::LOSE_SHOT);
                 return false;
             }
         case NONE_DEFENSE:
             if (opponent.hit > engine::LAY_UP_AND_NONE_DEFENSE)
             {
-                std::cout << "Два очка в корзине!!!\n";
+                std::cout << attack::ADD_TWO;
+                recording(attack::ADD_TWO);
                 opponent.score += engine::TWO_POINT;
                 score(player.score, opponent.score);
                 return true;
             }
             else
             {
-                std::cout << "Промах! Мяч в воздухе, кто же им завладеет?\n";
+                std::cout << attack::LOSE_SHOT;
+                recording(attack::LOSE_SHOT);
                 return false;
             }
         }
@@ -1393,60 +1727,69 @@ bool opponentAttack(Player& player, Opponent& opponent)
     if (opponent.shot == COMBINATIONT_SHOT)
     {
         //Шанс комбинации 55% - базовый
-        std::cout << "Смотрите, игроки разыгрывают комбинацию!!!\n";
+        std::cout << attack::COMBINATION;
+        recording(attack::COMBINATION);
         probabilityHitOpponent(opponent.hit);
         switch (player.defense)
         {
         case PRESSING:
             if (opponent.hit > engine::COMBINATION_AND_PRESSING)
             {
-                std::cout << "Два очка в корзине!!!\n";
+                std::cout << attack::ADD_TWO;
+                recording(attack::ADD_TWO);
                 opponent.score += engine::TWO_POINT;
                 score(player.score, opponent.score);
                 return true;
             }
             else
             {
-                std::cout << "Промах! Мяч в воздухе, кто же им завладеет?\n";
+                std::cout << attack::LOSE_SHOT;
+                recording(attack::LOSE_SHOT);
                 return false;
             }
         case PERSONAL_DEFENSE:
             if (opponent.hit > engine::COMBINATION_AND_PERSONAL_DEFENSE)
             {
-                std::cout << "Два очка в корзине!!!\n";
+                std::cout << attack::ADD_TWO;
+                recording(attack::ADD_TWO);
                 opponent.score += engine::TWO_POINT;
                 score(player.score, opponent.score);
                 return true;
             }
             else
             {
-                std::cout << "Промах! Мяч в воздухе, кто же им завладеет?\n";
+                std::cout << attack::LOSE_SHOT;
+                recording(attack::LOSE_SHOT);
                 return false;
             }
         case ZONE_DEFENSE:
             if (opponent.hit > engine::COMBINATION_AND_ZONE_DEFENSE)
             {
-                std::cout << "Два очка в корзине!!!\n";
+                std::cout << attack::ADD_TWO;
+                recording(attack::ADD_TWO);
                 opponent.score += engine::TWO_POINT;
                 score(player.score, opponent.score);
                 return true;
             }
             else
             {
-                std::cout << "Промах! Мяч в воздухе, кто же им завладеет?\n";
+                std::cout << attack::LOSE_SHOT;
+                recording(attack::LOSE_SHOT);
                 return false;
             }
         case NONE_DEFENSE:
             if (opponent.hit > engine::COMBINATION_AND_NONE_DEFENSE)
             {
-                std::cout << "Два очка в корзине!!!\n";
+                std::cout << attack::ADD_TWO;
+                recording(attack::ADD_TWO);
                 opponent.score += engine::TWO_POINT;
                 score(player.score, opponent.score);
                 return true;
             }
             else
             {
-                std::cout << "Промах! Мяч в воздухе, кто же им завладеет?\n";
+                std::cout << attack::LOSE_SHOT;
+                recording(attack::LOSE_SHOT);
                 return false;
             }
         }
@@ -1478,13 +1821,19 @@ void game(int jump, Player& player, Opponent& opponent)
             {
                 if (rebound())
                 {
-                    std::cout << "\nПодбор в атаке за командой: " << player.name << "\n\n";
+                    std::cout << attack::REBOUND_IN_ATTACK;
+                    recording(attack::REBOUND_IN_ATTACK);
+                    std::cout << player.name << "\n\n";
+                    recording(player.name);
                     engine::period += engine::ATTACK_TIME;
                     continue;
                 }
                 else
                 {
-                    std::cout << "\nПодбор в защите за командой: " << opponent.name << "\n\n";
+                    std::cout << defend::REBOUND_IN_DEFENSE;
+                    recording(defend::REBOUND_IN_DEFENSE);
+                    std::cout << opponent.name << "\n\n";
+                    recording(opponent.name);
                     engine::period += engine::ATTACK_TIME;
                 }
             }
@@ -1496,14 +1845,17 @@ void game(int jump, Player& player, Opponent& opponent)
             {
                 if (rebound())
                 {
-                    std::cout << "\nПодбор в атаке за командой: " << opponent.name << "\n\n";
-                    engine::period += engine::ATTACK_TIME;
+                    std::cout << attack::REBOUND_IN_ATTACK;
+                    recording(attack::REBOUND_IN_ATTACK);
                     opponentAttack(player, opponent);
                     engine::period += engine::ATTACK_TIME;
                 }
                 else
                 {
-                    std::cout << "\nПодбор в защите за командой: " << player.name << "\n\n";
+                    std::cout << defend::REBOUND_IN_DEFENSE;
+                    recording(defend::REBOUND_IN_DEFENSE);
+                    std::cout << player.name << "\n\n";
+                    recording(player.name);
                     engine::period += engine::ATTACK_TIME;
                 }
             }
@@ -1518,13 +1870,19 @@ void game(int jump, Player& player, Opponent& opponent)
             {
                 if (rebound())
                 {
-                    std::cout << "\nПодбор в защите за командой: " << opponent.name << "\n\n";
+                    std::cout << attack::REBOUND_IN_ATTACK;
+                    recording(attack::REBOUND_IN_ATTACK);
+                    std::cout << opponent.name << "\n\n";
+                    recording(opponent.name);
                     engine::period += engine::ATTACK_TIME;
                     continue;
                 }
                 else
                 {
-                    std::cout << "\nПодбор в защите за командой: " << player.name << "\n\n";
+                    std::cout << defend::REBOUND_IN_DEFENSE;
+                    recording(defend::REBOUND_IN_DEFENSE);
+                    std::cout << player.name << "\n\n";
+                    recording(player.name);
                     engine::period += engine::ATTACK_TIME;
                 }
             }
@@ -1536,14 +1894,19 @@ void game(int jump, Player& player, Opponent& opponent)
             {
                 if (rebound())
                 {
-                    std::cout << "\nПодбор в защите за командой: " << player.name << "\n\n";
+                    std::cout << attack::REBOUND_IN_ATTACK;
+                    recording(attack::REBOUND_IN_ATTACK);
+                    std::cout << player.name << "\n\n";
+                    recording(player.name);
                     engine::period += engine::ATTACK_TIME;
-                    playerAttack(player, opponent);
-                    engine::period += engine::ATTACK_TIME;
+                    continue;
                 }
                 else
                 {
-                    std::cout << "\nПодбор в защите за командой: " << opponent.name << "\n\n";
+                    std::cout << defend::REBOUND_IN_DEFENSE;
+                    recording(defend::REBOUND_IN_DEFENSE);
+                    std::cout << opponent.name << "\n\n";
+                    recording(opponent.name);
                     engine::period += engine::ATTACK_TIME;
                 }
             }
@@ -1557,5 +1920,12 @@ void game(int jump, Player& player, Opponent& opponent)
 
 void score(int scorePlayer, int scoreOpponent)
 {
-    std::cout << "Счет: " << scorePlayer << ' ' << scoreOpponent << "\n\n";
+    std::cout << menu::TABLO;
+    recording(menu::TABLO);
+    std::cout << scorePlayer;
+    recording(scorePlayer);
+    std::cout << ' ';
+    std::cout << scoreOpponent;
+    recording(scoreOpponent);
+    std::cout << "\n\n";
 }
