@@ -3,10 +3,18 @@
 #include <ctime>
 #include <string>
 #include <cstdlib>
+#include <vector>
 #include <windows.h>
 
 
 std::ofstream record;
+
+enum winOrLose
+{
+    PLAYER_WIN,
+    DRAW,
+    PLAYER_LOSE   
+};
 
 enum Shots
 {
@@ -49,8 +57,8 @@ enum spirit
 
 enum posessionBall
 {
-    PLAYER_BALL = 0,
-    OPPONENT_BALL = 1,
+    PLAYER_BALL = 1,
+    OPPONENT_BALL = 2,
     PROCENT_BALL_PLAYER = 40
 
 };
@@ -101,8 +109,9 @@ namespace menu
     int jump{};
     int hint{};
     const int RULES_GAME{ 1 };
-    const int AUTHOR_GAME{ 3 };
-    const int EXIT_GAME{ 4 };
+    const int TOURNAMENT{ 3 };
+    const int AUTHOR_GAME{ 4 };
+    const int EXIT_GAME{ 5 };
     std::string rules{};
     std::string rulesShot{};
     std::string rulesDefense{};
@@ -117,7 +126,7 @@ namespace menu
     const std::string HOORAY = "Поздравляем с победой команду ";
     const std::string DRAW = "Сегодня победитель не выявлен, но в следующий раз победит сильнейший!\n\n";
     const std::string WELCOME = "Добро пожаловать в игру \"Баскетбол\"\n";
-    const std::string START_MENU = "1. Правила игры.\n2. Начать игру.\n3. Об авторе.\n4. Выйти из игры.\n\nДля продолжения выберете действие: ";
+    const std::string START_MENU = "1. Правила игры.\n2. Начать игру.\n3. Режим турнира.\n4. Об авторе.\n5. Выйти из игры.\n\nДля продолжения выберете действие: ";
     const std::string CHOICE_HINT = "Выберите режим подсказок:\n1.Опытный(без подсказок).\n2.Любитель(подсказки появляются по нажатию клавиши)\n3.Новичок(подсказки выводятся всегда)\n\nВаш выбор: ";
     const std::string AUTHOR = "Студия разработки игр Dialas представляет.\nАвтор: Медведенко Егор(ник: mee1b).\nВерсия: 1.0.6.\n\n";
     const std::string TABLO = "Счет: ";
@@ -150,10 +159,15 @@ namespace engine
     const int PERIOD_START{ 0 };
     const int GOOD_STEAL_OPPONENT_ON_PLAYER{ 90 };
     const int GOOD_BLOCK_OPPONENT_ON_PLAYER{ 85 };
+    const int ALL_TEAM_TOURNAMENT{ 8 };
     int probalityJump{};
     int probalityRebound{};
     int period{};
     int userChoice{};
+    int howGame{ 1 };
+    int resoultTournament{};
+    const int ALL_TOURNAMENT_GAME{ 3 };
+    const int MAX_DRAW{ 2 };
     std::string userText{};
     const std::string EMPTY_STRING = "";
     const char COMMENT_CHAR = '*';
@@ -246,6 +260,7 @@ void recording(std::string comment);
 void recording(int comment);
 void userComment(std::string userText, std::string gameText, int& userChoice);
 void userComment(std::string userText, std::string gameText, std::string userChoice);
+int tournament(Player& player, Opponent& opponent);
 void startMenu();
 void hints();
 void author();
@@ -264,7 +279,7 @@ void attackShot(int& shot, int teamSpirit);
 bool playerAttack(Player& player, Opponent& opponent);
 bool opponentAttack(Player& player, Opponent& opponent);
 bool rebound();
-void game(int jump, Player& player, Opponent& opponent);
+void game(Player& player, Opponent& opponent);
 void score(int scorePlayer, int scoreOpponent);
 
 int main()
@@ -315,9 +330,27 @@ int main()
 
     gameRulesRecord();
     startMenu();
-    if (menu::startGame == menu::EXIT_GAME)
+    if (menu::startGame == menu::EXIT_GAME) { return 0; }
+    else if (menu::startGame == menu::TOURNAMENT)
     {
-        return 0;
+        engine::resoultTournament = tournament(player, opponent);
+        switch (engine::resoultTournament)
+        {
+        case PLAYER_LOSE: 
+            system("cls");
+            std::cout << "К сожалению, ты проиграл турнир.\nНо не вешай нос! Этот турнир не последний!\nУдачи в следующий раз!";
+            system("pause");
+            return 0;
+        case DRAW:
+            system("cls");
+            std::cout << "К сожалению, ты проиграл турнир. Из-за большого количества ничьюх не хватило очков.\nНо не вешай нос! Этот турнир не последний!\nУдачи в следующий раз!";
+            system("pause");
+            return 0;
+        case PLAYER_WIN:
+            std::cout << "Вот он ЧЕМПИОН!!!\nСегодня все поют песни только в твою честь!\nЛюбят только тебя и твоих товарищей!\nМедали на шее, но помни расслабляться рано! Впереди ждут новые победы!!!";
+            system("pause");
+            return 0;
+        }
     }
 
     hints();
@@ -332,7 +365,7 @@ int main()
     else
     {
         userComment(engine::userText, menu::OPPONENT_NAME_CHOICE, opponent.name);
-    } // почему при тест режиме дважды нужно вводить пустую строку, когда делал комменты, исправить!
+    }
     
     recording(opponent.name);
 
@@ -403,7 +436,7 @@ int main()
         recording(opponent.name);
     }
 
-    game(menu::jump, player, opponent);
+    game(player, opponent);
     std::cout << menu::TIMEOUT;
     recording(menu::TIMEOUT);
     system("pause");
@@ -419,7 +452,7 @@ int main()
         menu::jump = PLAYER_BALL;
     }
     engine::period = engine::PERIOD_START;
-    game(menu::jump, player, opponent);
+    game(player, opponent);
     std::cout << menu::FINAL;
     recording(menu::FINAL);
     std::cout << player.name;
@@ -508,6 +541,124 @@ void userComment(std::string userText, std::string gameText, std::string userCho
         std::cout << gameText;
         getline(std::cin, userText);
     }
+}
+
+int tournament(Player& player, Opponent& opponent)
+{
+    int gamesDraw{ 0 };
+    std::vector<std::string> namesTeamOpponent{ "Колледж Чикаго", "Колледж Вашингтона", "Колледж Аляски", "Колледж Огайо", "Далласский колледж", "Колледж Техаса", "Колледж Минесоты", "Колледж Финикса"};
+    int choiceTeamName{};
+    hints();
+    player.name = history::PLAYER_TEAM_NAME;
+    recording(player.name);
+    while (engine::howGame <= engine::ALL_TOURNAMENT_GAME)
+    {
+        menu::jump = 0;
+        player.score = 0;
+        opponent.score = 0;
+        engine::period = engine::PERIOD_START;
+        choiceTeamName = rand() % engine::ALL_TEAM_TOURNAMENT;
+
+        opponent.name = namesTeamOpponent[choiceTeamName];
+
+        switch (engine::howGame)
+        {
+        case 1:
+            system("cls");
+            situationOne(player.teamSpirit);
+            std::cout << "Первая игра турнира против команды " << opponent.name << std::endl;
+            break;
+        case 2:
+            system("cls");
+            situationTwo(player.teamSpirit);
+            std::cout << "Вторая игра турнира против команды " << opponent.name << std::endl;
+            break;
+        case 3:
+            system("cls");
+            situationThree(player.teamSpirit);
+            std::cout << "Третья игра турнира против команды " << opponent.name << std::endl;
+            break;
+        }
+
+        std::cout << menu::START_DEFENSE;
+        recording(menu::START_DEFENSE);
+        choiceDefense(player.defense);
+        recording(player.defense);
+        std::cout << "\n";
+
+        system("cls");
+
+        jumpBall(menu::jump);
+        if (menu::jump == PLAYER_BALL)
+        {
+            std::cout << menu::WIN_BALL_JUMP;
+            recording(menu::WIN_BALL_JUMP);
+            std::cout << player.name << ".\n\n";
+            recording(player.name);
+        }
+        else
+        {
+            std::cout << menu::WIN_BALL_JUMP;
+            recording(menu::WIN_BALL_JUMP);
+            std::cout << opponent.name << ".\n\n";
+            recording(opponent.name);
+        }
+
+        game(player, opponent);
+        std::cout << menu::TIMEOUT;
+        recording(menu::TIMEOUT);
+        system("pause");
+        system("cls");
+        std::cout << menu::SECOND_TIME;
+        recording(menu::SECOND_TIME);
+        if (menu::jump == PLAYER_BALL)
+        {
+            menu::jump = OPPONENT_BALL;
+        }
+        else
+        {
+            menu::jump = PLAYER_BALL;
+        }
+        engine::period = engine::PERIOD_START;
+        game(player, opponent);
+        std::cout << menu::FINAL;
+        recording(menu::FINAL);
+        std::cout << player.name;
+        recording(player.name);
+        std::cout << ' ';
+        std::cout << player.score;
+        recording(player.score);
+        std::cout << ' ';
+        std::cout << opponent.name;
+        recording(opponent.name);
+        std::cout << ": ";
+        std::cout << opponent.score << ".\n";
+        recording(opponent.score);
+        if (player.score > opponent.score)
+        {
+            std::cout << menu::HOORAY;
+            recording(menu::HOORAY);
+            std::cout << player.name;
+            recording(player.name);
+        }
+        else if (player.score < opponent.score)
+        {
+            return PLAYER_LOSE;
+        }
+        else
+        {
+            if (gamesDraw == engine::MAX_DRAW) { return DRAW; }
+            std::cout << menu::DRAW;
+            recording(menu::DRAW);
+            gamesDraw++;
+        }
+        std::cout << std::endl;
+        system("pause");
+        system("cls");
+
+        engine::howGame++;
+    }
+    return PLAYER_WIN;
 }
 
 void startMenu()
@@ -1029,7 +1180,7 @@ void jumpBall(int& jump)
 
 void probabilityHitPlayer(int& hit, int teamSpirit)
 {
-    hit = (rand() % 100 + 1) + teamSpirit;
+    hit = (rand() % 100 + 1) + (teamSpirit / 2);
 }
 
 void probabilityHitOpponent(int& hit)
@@ -2216,11 +2367,11 @@ bool rebound()
     }
 }
 
-void game(int jump, Player& player, Opponent& opponent)
+void game(Player& player, Opponent& opponent)
 {
     while (engine::period < engine::PERIOD_FINISH)
     {
-        if (jump == PLAYER_BALL)
+        if (menu::jump == PLAYER_BALL)
         {
             if (!playerAttack(player, opponent))
             {
@@ -2293,7 +2444,7 @@ void game(int jump, Player& player, Opponent& opponent)
                 engine::period += engine::ATTACK_TIME;
             }
         }
-        else if (jump == OPPONENT_BALL)
+        else if (menu::jump == OPPONENT_BALL)
         {
             if (!opponentAttack(player, opponent))
             {
