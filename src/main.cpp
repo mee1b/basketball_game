@@ -46,8 +46,8 @@ enum playerHints
 
 enum spirit
 {
-    MAX_SPIRIT = 20,
-    MIN_SPIRIT = -20,
+    MAX_SPIRIT = 10,
+    MIN_SPIRIT = -10,
     DIRTY_SPIRIT = -10,
     GOD_SPIRIT = 10,
     MORE_POINT = 5,
@@ -80,7 +80,7 @@ namespace test
 {
     bool testingEnabled{};
     const std::string TESTING_ENABLED = "РЕЖИМ ТЕСТИРОВЩИКА ВКЛЮЧЕН!\n";
-    const std::string CHOICE_TEAM_SPIRIT = "\nТЕСТОВОЕ МЕНЮ:\nВыберите уровень командного духа от -20 до 20: ";
+    const std::string CHOICE_TEAM_SPIRIT = "\nТЕСТОВОЕ МЕНЮ:\nВыберите уровень командного духа от -10 до 10: ";
     const std::string CHOICE_SCENE = "Выебирте одну одну кат сцену цифрами от 1 до 3.\nКат сцена номер: ";
     const std::string NONE_SCENE = "Переход к игре без кат сцен!\n";
     const std::string TEST_THREE_PRESSING = "ТЕСТОВОЕ СООБЩЕНИЕ:\n1.Базовый шанс - 40%.\n2.Защита \"Прессинг\" - (-10%)\n3.Командный дух ";
@@ -171,7 +171,6 @@ namespace engine
     std::string userText{};
     const std::string EMPTY_STRING = "";
     const char COMMENT_CHAR = '*';
-    const std::string USER_COMMENT_FILE = "user_comment.txt";
     const std::string USER_HISTORY_FILE = "text_game.txt";
 }
 
@@ -241,6 +240,11 @@ struct Opponent
     int score{};
     int hit{};
     int shot{};
+    int teamSpiritOpponent{ 0 };
+    int probalityDirtyGame{};
+    const int PROCENT_DIRTY_GAME = 50;
+    const int DIRTY_DEEP = 5;
+    const int ENTER_ON_DIRTY = 30;
     std::string name{};
 };
 
@@ -259,7 +263,7 @@ struct Player
 void recording(std::string comment);
 void recording(int comment);
 void userComment(std::string userText, std::string gameText, int& userChoice);
-void userComment(std::string userText, std::string gameText, std::string userChoice);
+void userComment(std::string gameText, std::string& userChoice);
 int tournament(Player& player, Opponent& opponent);
 void startMenu();
 void hints();
@@ -272,7 +276,7 @@ void situationThree(int& teamSpitit);
 void choiceDefense(int& defense);
 void jumpBall(int& jump);
 void probabilityHitPlayer(int& hit, int teamSpirit);
-void probabilityHitOpponent(int& hit);
+void probabilityHitOpponent(int& hit, int teamSpiritOpponent);
 void probalityStealOpponentOnPlayer(bool& steal);
 void probalityBlockOpponentOnPlayer(bool& block);
 void attackShot(int& shot, int teamSpirit);
@@ -289,7 +293,7 @@ int main()
     srand(static_cast<unsigned int>(time(0)));
     record.open(engine::USER_HISTORY_FILE);
     record.close();
-    record.open(engine::USER_COMMENT_FILE);
+    record.open(engine::USER_HISTORY_FILE);
     record.close();
 
 
@@ -358,13 +362,13 @@ int main()
     std::cout << menu::OPPONENT_NAME_CHOICE;
     recording(menu::OPPONENT_NAME_CHOICE);
     std::getline(std::cin, opponent.name);
+    if (opponent.name != engine::EMPTY_STRING)
+    {
+        userComment(menu::OPPONENT_NAME_CHOICE, opponent.name);
+    }
     if (opponent.name == engine::EMPTY_STRING)
     {
         opponent.name = history::STANDART_OPPONENT_NAME;
-    }
-    else
-    {
-        userComment(engine::userText, menu::OPPONENT_NAME_CHOICE, opponent.name);
     }
     
     recording(opponent.name);
@@ -415,7 +419,6 @@ int main()
     choiceDefense(player.defense);
     recording(player.defense);
     player.name = history::PLAYER_TEAM_NAME;
-    recording(player.name);
     std::cout << "\n";
 
     system("cls");
@@ -520,8 +523,7 @@ void userComment(std::string userText, std::string gameText, int& userChoice)
             getline(std::cin, userText);
             continue;
         }
-        userText.erase(0, 1);
-        record.open(engine::USER_COMMENT_FILE, std::ios::app);
+        record.open(engine::USER_HISTORY_FILE, std::ios::app);
         record << userText << std::endl;
         record.close();
         std::cout << gameText;
@@ -530,16 +532,15 @@ void userComment(std::string userText, std::string gameText, int& userChoice)
     userChoice = stoi(userText);
 }
 
-void userComment(std::string userText, std::string gameText, std::string userChoice)
+void userComment(std::string gameText, std::string& userChoice)
 {
-    while (userText[0] == engine::COMMENT_CHAR)
+    while (userChoice[0] == engine::COMMENT_CHAR)
     {
-        userText.erase(0, 1);
-        record.open(engine::USER_COMMENT_FILE, std::ios::app);
-        record << userText << std::endl;
+        record.open(engine::USER_HISTORY_FILE, std::ios::app);
+        record << userChoice << std::endl;
         record.close();
         std::cout << gameText;
-        getline(std::cin, userText);
+        getline(std::cin, userChoice);
     }
 }
 
@@ -571,12 +572,14 @@ int tournament(Player& player, Opponent& opponent)
         case 2:
             system("cls");
             situationTwo(player.teamSpirit);
-            std::cout << "Вторая игра турнира против команды " << opponent.name << std::endl;
+            std::cout << "Полуфинал турнира против команды " << opponent.name << std::endl;
+            opponent.teamSpiritOpponent += MORE_POINT;
             break;
         case 3:
             system("cls");
             situationThree(player.teamSpirit);
-            std::cout << "Третья игра турнира против команды " << opponent.name << std::endl;
+            std::cout << "Финальная игра турнира против команды " << opponent.name << std::endl;
+            opponent.teamSpiritOpponent += MORE_POINT;
             break;
         }
 
@@ -737,7 +740,7 @@ void gameRulesRecord()
 {
     // Объясняет ввод с клавиатуры
     menu::rules =
-        "Это баскетбольный клуб Дартмутского колледжа. "
+        "Это баскетбольный клуб колледжа Алабама. "
         "Ты будешь капитаном и плеймейкером нашей команды.\n"
         "Игра длится 2 тайма по 4 минуты. Одна атака длится 24 секунды.\n\n";
     menu::rulesShot =
@@ -1180,12 +1183,12 @@ void jumpBall(int& jump)
 
 void probabilityHitPlayer(int& hit, int teamSpirit)
 {
-    hit = (rand() % 100 + 1) + (teamSpirit / 2);
+    hit = (rand() % 100 + 1) + teamSpirit;
 }
 
-void probabilityHitOpponent(int& hit)
+void probabilityHitOpponent(int& hit, int teamSpiritOpponent)
 {
-    hit = (rand() % 100) + 1;
+    hit = (rand() % 100) + 1 + teamSpiritOpponent;
 }
 
 void probalityStealOpponentOnPlayer(bool& steal)
@@ -1910,15 +1913,40 @@ bool opponentAttack(Player& player, Opponent& opponent)
 {
     opponent.shot = (rand() % 4) + 1;
     std::cout << opponent.name;
-    recording(player.name);
+    recording(opponent.name);
     std::cout << attack::IN_ATTACK;
     recording(attack::IN_ATTACK);
+    opponent.probalityDirtyGame = rand() % 100 + 1;
+    if ((player.score - opponent.score >= opponent.DIRTY_DEEP) && opponent.probalityDirtyGame > opponent.PROCENT_DIRTY_GAME)
+    {
+        if (opponent.probalityDirtyGame >= opponent.PROCENT_DIRTY_GAME)
+        {
+            std::cout << attack::ADD_DIRTY;
+            recording(attack::ADD_DIRTY);
+            opponent.score += engine::THREE_POINT;
+            score(player.score, opponent.score);
+        }
+        else
+        {
+            std::cout << attack::FAIL_DIRTY;
+            recording(attack::FAIL_DIRTY);
+            std::cout << opponent.name << '\n';
+            recording(opponent.name);
+            std::cout << player.name;
+            recording(player.name);
+            std::cout << attack::REALESE_DIRTY_PENALTY;
+            recording(attack::REALESE_DIRTY_PENALTY);
+            player.score += engine::FREE_THROW_POINT;
+            score(player.score, opponent.score);
+        }
+        return true;
+    }
     if (opponent.shot == THREE_POINT_SHOT)
     {
         //Шанс трехочкового 40% - базовый
         std::cout << attack::THREE_POINT;
         recording(attack::THREE_POINT);
-        probabilityHitOpponent(opponent.hit);
+        probabilityHitOpponent(opponent.hit, opponent.teamSpiritOpponent);
         switch (player.defense)
         {
         case PRESSING:
@@ -1993,7 +2021,7 @@ bool opponentAttack(Player& player, Opponent& opponent)
         //Шанс двухочкового 50% - базовый
         std::cout << attack::MEDIUM_SHOT;
         recording(attack::MEDIUM_SHOT);
-        probabilityHitOpponent(opponent.hit);
+        probabilityHitOpponent(opponent.hit, opponent.teamSpiritOpponent);
         switch (player.defense)
         {
         case PRESSING:
@@ -2067,7 +2095,7 @@ bool opponentAttack(Player& player, Opponent& opponent)
         //Шанс лэй - аппа 60% - базовый
         std::cout << attack::LAY_UP;
         recording(attack::LAY_UP);
-        probabilityHitOpponent(opponent.hit);
+        probabilityHitOpponent(opponent.hit, opponent.teamSpiritOpponent);
         probalityStealOpponentOnPlayer(attack::steal);
         probalityBlockOpponentOnPlayer(attack::block);
         if (attack::steal && attack::block)
@@ -2211,7 +2239,7 @@ bool opponentAttack(Player& player, Opponent& opponent)
         //Шанс комбинации 55% - базовый
         std::cout << attack::COMBINATION;
         recording(attack::COMBINATION);
-        probabilityHitOpponent(opponent.hit);
+        probabilityHitOpponent(opponent.hit, opponent.teamSpiritOpponent);
         probalityStealOpponentOnPlayer(attack::steal);
         probalityBlockOpponentOnPlayer(attack::block);
         if (attack::steal && attack::block)
@@ -2379,12 +2407,14 @@ void game(Player& player, Opponent& opponent)
                 {
                     attack::steal = false;
                     opponentAttack(player, opponent);
+                    engine::period += engine::ATTACK_TIME;
                     continue;
                 }
                 if (attack::block)
                 {
                     attack::block = false;
                     opponentAttack(player, opponent);
+                    engine::period += engine::ATTACK_TIME;
                     continue;
                 }
                 if (rebound())
@@ -2414,19 +2444,19 @@ void game(Player& player, Opponent& opponent)
                 if (attack::steal)
                 {
                     attack::steal = false;
-                    playerAttack(player, opponent);
                     continue;
                 }
                 if (attack::block)
                 {
                     attack::block = false;
-                    playerAttack(player, opponent);
                     continue;
                 }
                 if (rebound())
                 {
                     std::cout << attack::REBOUND_IN_ATTACK;
                     recording(attack::REBOUND_IN_ATTACK);
+                    std::cout << opponent.name << "\n\n";
+                    recording(opponent.name);
                     opponentAttack(player, opponent);
                     engine::period += engine::ATTACK_TIME;
                 }
@@ -2452,12 +2482,14 @@ void game(Player& player, Opponent& opponent)
                 {
                     attack::steal = false;
                     playerAttack(player, opponent);
+                    engine::period += engine::ATTACK_TIME;
                     continue;
                 }
                 if (attack::block)
                 {
                     attack::block = false;
                     playerAttack(player, opponent);
+                    engine::period += engine::ATTACK_TIME;
                     continue;
                 }
                 if (rebound())
@@ -2487,13 +2519,11 @@ void game(Player& player, Opponent& opponent)
                 if (attack::steal)
                 {
                     attack::steal = false;
-                    opponentAttack(player, opponent);
                     continue;
                 }
                 if (attack::block)
                 {
                     attack::block = false;
-                    opponentAttack(player, opponent);
                     continue;
                 }
                 if (rebound())
@@ -2502,8 +2532,8 @@ void game(Player& player, Opponent& opponent)
                     recording(attack::REBOUND_IN_ATTACK);
                     std::cout << player.name << "\n\n";
                     recording(player.name);
+                    playerAttack(player, opponent);
                     engine::period += engine::ATTACK_TIME;
-                    continue;
                 }
                 else
                 {
