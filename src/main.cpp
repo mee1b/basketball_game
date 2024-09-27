@@ -19,29 +19,29 @@ enum winOrLose
 enum Shots
 {
     THREE_POINT_SHOT = 1,
-    MEDIUM_SHOT = 2,
-    LAY_UP_SHOT = 3,
-    COMBINATIONT_SHOT = 4,
-    RULES_SHOT = 5,
-    DIRTY_SHOT = 6,
-    HAND_GOD_SHOT = 7
+    MEDIUM_SHOT,
+    LAY_UP_SHOT,
+    COMBINATIONT_SHOT,
+    RULES_SHOT,
+    DIRTY_SHOT,
+    HAND_GOD_SHOT
 };
 
 enum defense
 {
-    CHOICE_DEFENSE = 0,
-    PRESSING = 1,
-    PERSONAL_DEFENSE = 2,
-    ZONE_DEFENSE = 3,
-    NONE_DEFENSE = 4,
-    RULES_DEFENSE = 5
+    CHOICE_DEFENSE,
+    PRESSING,
+    PERSONAL_DEFENSE,
+    ZONE_DEFENSE,
+    NONE_DEFENSE,
+    RULES_DEFENSE
 };
 
 enum playerHints
 {
     EXPERT = 1,
-    AMATEUR = 2,
-    NOOB = 3
+    AMATEUR,
+    NOOB
 };
 
 enum spirit
@@ -51,14 +51,12 @@ enum spirit
     DIRTY_SPIRIT = -10,
     GOD_SPIRIT = 10,
     MORE_POINT = 5,
-    MORE_PLAYER = 1,
-    MORE_OPPONENT = -1
 };
 
 enum posessionBall
 {
     PLAYER_BALL = 1,
-    OPPONENT_BALL = 2,
+    OPPONENT_BALL,
     PROCENT_BALL_PLAYER = 40
 
 };
@@ -66,14 +64,14 @@ enum posessionBall
 enum situationShow
 {
     FIRST_STORY = 1,
-    SECOND_STORY = 2,
-    THIRD_STORY = 3
+    SECOND_STORY,
+    THIRD_STORY
 };
 
 enum testing
 {
     TEST = 1,
-    UNTEST = 2
+    UNTEST
 };
 
 namespace test
@@ -1925,6 +1923,7 @@ bool opponentAttack(Player& player, Opponent& opponent)
             recording(attack::ADD_DIRTY);
             opponent.score += engine::THREE_POINT;
             score(player.score, opponent.score);
+            player.teamSpirit -= MORE_POINT;
         }
         else
         {
