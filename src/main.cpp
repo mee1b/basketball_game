@@ -126,7 +126,7 @@ namespace menu
     const std::string WELCOME = "Добро пожаловать в игру \"Баскетбол\"\n";
     const std::string START_MENU = "1. Правила игры.\n2. Начать игру.\n3. Режим турнира.\n4. Об авторе.\n5. Выйти из игры.\n\nДля продолжения выберете действие: ";
     const std::string CHOICE_HINT = "Выберите режим подсказок:\n1.Опытный(без подсказок).\n2.Любитель(подсказки появляются по нажатию клавиши)\n3.Новичок(подсказки выводятся всегда)\n\nВаш выбор: ";
-    const std::string AUTHOR = "Студия разработки игр Dialas представляет.\nАвтор: Медведенко Егор(ник: mee1b).\nВерсия: 1.0.6.\n\n";
+    const std::string AUTHOR = "Студия разработки игр Dialas представляет.\nАвтор: Медведенко Егор(ник: mee1b).\nВерсия: 1.0.8.\n\n";
     const std::string TABLO = "Счет: ";
 }
 
@@ -137,33 +137,38 @@ namespace engine
     const int TWO_POINT{ 2 };
     const int FREE_THROW_POINT{ 1 };
     const int THREE_POINT_AND_PRESSING{ 70 };
-    const int THREE_POINT_AND_PERSONAL_DEFENSE{ 45 };
-    const int THREE_POINT_AND_ZONE_DEFENSE{ 70 };
-    const int THREE_POINT_AND_NONE_DEFENSE{ 40 };
+    const int THREE_POINT_AND_PERSONAL_DEFENSE{ 55 };
+    const int THREE_POINT_AND_ZONE_DEFENSE{ 80 };
+    const int THREE_POINT_AND_NONE_DEFENSE{ 50 };
     const int MEDIUM_SHOT_AND_PRESSING{ 60 };
-    const int MEDIUM_SHOT_AND_PERSONAL_DEFENSE{ 60 };
-    const int MEDIUM_SHOT_AND_ZONE_DEFENSE{ 35 };
-    const int MEDIUM_SHOT_AND_NONE_DEFENSE{ 30 };
+    const int MEDIUM_SHOT_AND_PERSONAL_DEFENSE{ 70 };
+    const int MEDIUM_SHOT_AND_ZONE_DEFENSE{ 40 };
+    const int MEDIUM_SHOT_AND_NONE_DEFENSE{ 40 };
     const int LAY_UP_AND_PRESSING{ 50 };
-    const int LAY_UP_AND_PERSONAL_DEFENSE{ 50 };
-    const int LAY_UP_AND_ZONE_DEFENSE{ 25 };
-    const int LAY_UP_AND_NONE_DEFENSE{ 20 };
+    const int LAY_UP_AND_PERSONAL_DEFENSE{ 60 };
+    const int LAY_UP_AND_ZONE_DEFENSE{ 30 };
+    const int LAY_UP_AND_NONE_DEFENSE{ 30 };
     const int COMBINATION_AND_PRESSING{ 65 };
-    const int COMBINATION_AND_PERSONAL_DEFENSE{ 40 };
-    const int COMBINATION_AND_ZONE_DEFENSE{ 65 };
-    const int COMBINATION_AND_NONE_DEFENSE{ 35 };
-    const int PROCENT_REBOUND{ 80 };
+    const int COMBINATION_AND_PERSONAL_DEFENSE{ 45 };
+    const int COMBINATION_AND_ZONE_DEFENSE{ 70 };
+    const int COMBINATION_AND_NONE_DEFENSE{ 40 };
+    const int PROCENT_REBOUND{ 90 };
     const int PERIOD_FINISH{ 120 };
     const int PERIOD_START{ 0 };
-    const int GOOD_STEAL_OPPONENT_ON_PLAYER{ 90 };
-    const int GOOD_BLOCK_OPPONENT_ON_PLAYER{ 85 };
+    const int GOOD_STEAL_OPPONENT_ON_PLAYER{ 80 };
+    const int GOOD_BLOCK_OPPONENT_ON_PLAYER{ 75 };
     const int ALL_TEAM_TOURNAMENT{ 8 };
+    const int SWITCH_DEFENSE{ 1 };
+    const int ZERO{ 0 };
+    const int ONE_UP{ 1 };
     int probalityJump{};
     int probalityRebound{};
     int period{};
     int userChoice{};
     int howGame{ 1 };
     int resoultTournament{};
+    int countPersonalDefense{};
+    int countZoneDefense{};
     const int ALL_TOURNAMENT_GAME{ 3 };
     const int MAX_DRAW{ 2 };
     std::string userText{};
@@ -238,6 +243,7 @@ struct Opponent
     int score{};
     int hit{};
     int shot{};
+    int defense{};
     int teamSpiritOpponent{ 0 };
     int probalityDirtyGame{};
     const int PROCENT_DIRTY_GAME = 50;
@@ -283,6 +289,7 @@ bool opponentAttack(Player& player, Opponent& opponent);
 bool rebound();
 void game(Player& player, Opponent& opponent);
 void score(int scorePlayer, int scoreOpponent);
+bool deleteName(std::vector<std::string>& namesTeamOpponent, std::vector<std::string>& usingNameTeam, int choiceTeamName);
 
 int main()
 {
@@ -417,6 +424,7 @@ int main()
     choiceDefense(player.defense);
     recording(player.defense);
     player.name = history::PLAYER_TEAM_NAME;
+    opponent.defense = player.defense;
     std::cout << "\n";
 
     system("cls");
@@ -546,6 +554,8 @@ int tournament(Player& player, Opponent& opponent)
 {
     int gamesDraw{ 0 };
     std::vector<std::string> namesTeamOpponent{ "Колледж Чикаго", "Колледж Вашингтона", "Колледж Аляски", "Колледж Огайо", "Далласский колледж", "Колледж Техаса", "Колледж Минесоты", "Колледж Финикса"};
+    std::vector<std::string> usingNameTeam{};
+
     int choiceTeamName{};
     hints();
     player.name = history::PLAYER_TEAM_NAME;
@@ -559,6 +569,14 @@ int tournament(Player& player, Opponent& opponent)
         choiceTeamName = rand() % engine::ALL_TEAM_TOURNAMENT;
 
         opponent.name = namesTeamOpponent[choiceTeamName];
+
+        while (!deleteName(namesTeamOpponent, usingNameTeam, choiceTeamName))
+        {
+            choiceTeamName = rand() % engine::ALL_TEAM_TOURNAMENT;
+            opponent.name = namesTeamOpponent[choiceTeamName];
+        }
+
+        
 
         switch (engine::howGame)
         {
@@ -585,6 +603,7 @@ int tournament(Player& player, Opponent& opponent)
         recording(menu::START_DEFENSE);
         choiceDefense(player.defense);
         recording(player.defense);
+        opponent.defense = player.defense;
         std::cout << "\n";
 
         system("cls");
@@ -644,11 +663,12 @@ int tournament(Player& player, Opponent& opponent)
         }
         else if (player.score < opponent.score)
         {
+            system("pause");
             return PLAYER_LOSE;
         }
         else
         {
-            if (gamesDraw == engine::MAX_DRAW) { return DRAW; }
+            if (gamesDraw == engine::MAX_DRAW) { system("pause");  return DRAW; }
             std::cout << menu::DRAW;
             recording(menu::DRAW);
             gamesDraw++;
@@ -747,13 +767,14 @@ void gameRulesRecord()
         "На попадание влияет:\n1. Базовый процент попадания.\n2. Защита.\n3. Командный дух.\n\n"
         "Командный дух можно, как поднять(отличной игрой и успешным решением жизненных вопросов команды).\nТак и потерять(плохой игрой или неудачними решениями).\n\n";
     menu::rulesDefense =
-        "Обе команды будут использовать одну и ту же защиту.\nВыберите схему следующим образом:\n"
+        "Выберите схему следующим образом:\n"
         "1. Прессинг - эффективная защита (шанс всех бросков снижен на 10%);\n"
-        "2. Личная опека - отличная защита от средних и ближних бросков (шанс удачного среднего броска и лэй - аппа -10%),\n"
-        "но открывается огромный простор для дальних бросков и комбинаций (шанс удачного дальнего броска и комбинаций + 15 %);\n"
-        "3. Зонная защита - отличная защита от дальних бросков и комбинаций (шанс удачного дальнего броска и комбинации -10%),\n"
-        "но открывается огромный простор для лэй - аппов и средних бросков (шанс удачного лэй - аппа и средних бросков + 15%);\n"
-        "4. Нет защиты - команда отдыхает в защите (повышается шанс удачной реализации всех бросков +20%);\n"
+        "2. Личная опека - отличная защита от средних и ближних бросков (шанс удачного среднего броска и лэй - аппа -20%),\n"
+        "но открывается огромный простор для дальних бросков и комбинаций (шанс удачного дальнего броска и комбинаций + 10 %);\n"
+        "3. Зонная защита - отличная защита от дальних бросков и комбинаций (шанс удачного дальнего броска и комбинации -20%),\n"
+        "но открывается огромный простор для лэй - аппов и средних бросков (шанс удачного лэй - аппа и средних бросков + 10%);\n"
+        "4. Нет защиты - команда отдыхает в защите (повышается шанс удачной реализации всех бросков +10%);\n"
+        "Противник будет менять свою защиту в зависимости от бросков, которые ты делаешь!\n";
         "Чтобы изменить защиту, просто введите 0 в качестве следующего броска.\n\n";
 }
 
@@ -1295,6 +1316,42 @@ bool playerAttack(Player& player, Opponent& opponent)
         recording(attack::OPEN_HAND);
     }
     attackShot(player.shot, player.teamSpirit);
+
+    switch (player.shot)
+    {
+    case THREE_POINT_SHOT:
+    case COMBINATIONT_SHOT:
+        if (engine::countZoneDefense == engine::SWITCH_DEFENSE)
+        {
+            opponent.defense = ZONE_DEFENSE;
+            engine::countZoneDefense = engine::ZERO;
+            break;
+        }
+        engine::countZoneDefense += engine::ONE_UP;
+        engine::countPersonalDefense = engine::ZERO;
+        break;
+
+    case MEDIUM_SHOT:
+    case LAY_UP_SHOT:
+        if (engine::countPersonalDefense == engine::SWITCH_DEFENSE)
+        {
+            opponent.defense = PERSONAL_DEFENSE;
+            engine::countPersonalDefense = engine::ZERO;
+            break;
+        }
+        engine::countPersonalDefense += engine::ONE_UP;
+        engine::countZoneDefense = engine::ZERO;
+        break;
+    }
+    if (player.score - opponent.score >= opponent.DIRTY_DEEP)
+    {
+        opponent.defense = PRESSING;
+    }
+    else if (opponent.score - player.score >= opponent.DIRTY_DEEP)
+    {
+        opponent.defense = NONE_DEFENSE;
+    }
+
     std::cout << "\n";
     while (player.shot == CHOICE_DEFENSE)
     {
@@ -1312,7 +1369,7 @@ bool playerAttack(Player& player, Opponent& opponent)
         std::cout << attack::THREE_POINT;
         recording(attack::THREE_POINT);
         probabilityHitPlayer(player.hit, player.teamSpirit);
-        switch (player.defense)
+        switch (opponent.defense)
         {
         case PRESSING:
             if (test::testingEnabled)
@@ -1416,7 +1473,7 @@ bool playerAttack(Player& player, Opponent& opponent)
         std::cout << attack::MEDIUM_SHOT;
         recording(attack::MEDIUM_SHOT);
         probabilityHitPlayer(player.hit, player.teamSpirit);
-        switch (player.defense)
+        switch (opponent.defense)
         {
         case PRESSING:
             if (test::testingEnabled)
@@ -1524,7 +1581,7 @@ bool playerAttack(Player& player, Opponent& opponent)
         {
             attack::steal = false;
         }
-        switch (player.defense)
+        switch (opponent.defense)
         {
         case PRESSING:
             if (test::testingEnabled)
@@ -1696,7 +1753,7 @@ bool playerAttack(Player& player, Opponent& opponent)
         {
             attack::steal = false;
         }
-        switch (player.defense)
+        switch (opponent.defense)
         {
         case PRESSING:
             if (test::testingEnabled)
@@ -1904,11 +1961,27 @@ bool playerAttack(Player& player, Opponent& opponent)
         return true;
     }
     std::cout << "\n\n";
+
     return false;
 }
 
 bool opponentAttack(Player& player, Opponent& opponent)
 {
+    switch (opponent.defense)
+    {
+    case PRESSING:
+        std::cout << "Защита команды " << opponent.name << " - прессинг\n";
+        break;
+    case PERSONAL_DEFENSE:
+        std::cout << "Защита команды " << opponent.name << " - личная опека\n";
+        break;
+    case ZONE_DEFENSE:
+        std::cout << "Команда " << opponent.name << " играет зонную защиту\n";
+        break;
+    case NONE_DEFENSE:
+        std::cout << "Видимо команда " << opponent.name << " устала - у них нет защиты\n";
+        break;
+    }
     opponent.shot = (rand() % 4) + 1;
     std::cout << opponent.name;
     recording(opponent.name);
@@ -2561,4 +2634,23 @@ void score(int scorePlayer, int scoreOpponent)
     std::cout << scoreOpponent;
     recording(scoreOpponent);
     std::cout << "\n\n";
+}
+
+bool deleteName(std::vector<std::string>& namesTeamOpponent, std::vector<std::string>& usingNameTeam, int choiceTeamName)
+{
+    if (!usingNameTeam.empty())
+    {
+        for (std::string name : namesTeamOpponent)
+        {
+            for (std::string usName : usingNameTeam)
+            {
+                if (usName == name)
+                {
+                    return false;
+                }
+            }
+        }
+        usingNameTeam.push_back(namesTeamOpponent[choiceTeamName]);
+        return true;
+    }
 }
