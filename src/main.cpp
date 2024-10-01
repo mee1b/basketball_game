@@ -293,6 +293,7 @@ void deleteName(std::vector<std::string>& namesTeamOpponent, int choiceTeamName)
 
 int main()
 {
+    setlocale(LC_ALL, "rus");
     SetConsoleCP(1251);
     SetConsoleOutputCP(1251);
     srand(static_cast<unsigned int>(time(0)));
