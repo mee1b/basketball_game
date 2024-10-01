@@ -153,14 +153,14 @@ namespace engine
     const int COMBINATION_AND_ZONE_DEFENSE{ 70 };
     const int COMBINATION_AND_NONE_DEFENSE{ 40 };
     const int PROCENT_REBOUND{ 90 };
-    const int PERIOD_FINISH{ 120 };
+    const int PERIOD_FINISH{ 240 };
     const int PERIOD_START{ 0 };
     const int GOOD_STEAL_OPPONENT_ON_PLAYER{ 80 };
     const int GOOD_BLOCK_OPPONENT_ON_PLAYER{ 75 };
-    const int ALL_TEAM_TOURNAMENT{ 8 };
     const int SWITCH_DEFENSE{ 1 };
     const int ZERO{ 0 };
     const int ONE_UP{ 1 };
+    int allTeamTournament{ 8 };
     int probalityJump{};
     int probalityRebound{};
     int period{};
@@ -289,7 +289,7 @@ bool opponentAttack(Player& player, Opponent& opponent);
 bool rebound();
 void game(Player& player, Opponent& opponent);
 void score(int scorePlayer, int scoreOpponent);
-bool deleteName(std::vector<std::string>& namesTeamOpponent, std::vector<std::string>& usingNameTeam, int choiceTeamName);
+void deleteName(std::vector<std::string>& namesTeamOpponent, int choiceTeamName);
 
 int main()
 {
@@ -554,7 +554,6 @@ int tournament(Player& player, Opponent& opponent)
 {
     int gamesDraw{ 0 };
     std::vector<std::string> namesTeamOpponent{ "Колледж Чикаго", "Колледж Вашингтона", "Колледж Аляски", "Колледж Огайо", "Далласский колледж", "Колледж Техаса", "Колледж Минесоты", "Колледж Финикса"};
-    std::vector<std::string> usingNameTeam{};
 
     int choiceTeamName{};
     hints();
@@ -566,15 +565,10 @@ int tournament(Player& player, Opponent& opponent)
         player.score = 0;
         opponent.score = 0;
         engine::period = engine::PERIOD_START;
-        choiceTeamName = rand() % engine::ALL_TEAM_TOURNAMENT;
+        choiceTeamName = rand() % engine::allTeamTournament;
 
         opponent.name = namesTeamOpponent[choiceTeamName];
-
-        while (!deleteName(namesTeamOpponent, usingNameTeam, choiceTeamName))
-        {
-            choiceTeamName = rand() % engine::ALL_TEAM_TOURNAMENT;
-            opponent.name = namesTeamOpponent[choiceTeamName];
-        }
+        deleteName(namesTeamOpponent, choiceTeamName);
 
         
 
@@ -925,13 +919,13 @@ void situationTwo(int& teamSpirit)
     situation.scene = 
         "С уроками на сегодня покончено. ты закрыл крышку ноутбука и откинулся на спинку кресла,\n"
         "надо придумать, чем занять вечер.\n"
-        "В кармане завибрировал смарттфон, снова спам, на этот рраз от сервиса знакомств.\n"
+        "В кармане завибрировал смартфон, снова спам, на этот раз от сервиса знакомств.\n"
         "Ты задумчиво крутил телефон в руке, реклама направила твои мысли на путь, которого ты избегал вот уже три месяца.\n"
-        "Алисон, светловолосая смешливая девчонка, частенько присутствовала на выступлениях вашей команды, однако, \n"
+        "Алисон, светловолосая смешливая девчонка, частенько присутствовала на выступлениях вашей команды, однако,\n"
         "ваше общение не выходило за рамки дружеского, иногда с намёком на лёгкий флирт,\n"
         "так что девушка вряд-ли догадывалась, что ты пламенно в неё влюблён.\n"
         "Быть может, эта сообщение — знак свыше, и стоит пригласить, наконец, Алисон на свидание?\n"
-        "Ты нашёл в контактах  номер, и задумался: а вдруг она откажет, или согласится, а потом что то пойдёт не так?\n";
+        "Ты нашёл в контактах номер, и задумался: а вдруг она откажет, или согласится, а потом что то пойдёт не так?\n";
     std::cout << situation.scene;
     recording(situation.scene);
     system("pause");
@@ -958,7 +952,7 @@ void situationTwo(int& teamSpirit)
     {
         situation.riscVictory =
             "\nУСПЕХ!\n\n"
-            "Bногда стоит доверять знакам!\n"
+            "Иногда стоит доверять знакам!\n"
             "Пиццерия, в которую ты пригласил девушку, конечно, не ресторан,\n"
             "но Алисон выглядела вполне довольной, да и с букетом ты угадал.\n"
             "У вас оказалос сотня общих тем для разговора, ты пригласил её на завтрашнюю игру, она обещала прийти,\n"
@@ -988,6 +982,7 @@ void situationTwo(int& teamSpirit)
             "Обычно живая и весёлая, сегодня она была молчалива.\n"
             "Когда же тебе удалось разговорить девушку, выяснилось, что её отец вынужден был сменить работу,\n"
             "из-за чего им придётся переехать куда-то в Африку, где беда не то, что с интернетом,\n"
+            "там даже электричество и вода есть не всегда.\n";
             "Алисон сказала,что, возможно, ей удастся приехать на будущий год, но тебе показалось,\n"
             "что она и сама не слишком верит в это.\n"
             "Быть может, тебе стоило признаться в своих чувствах раньше, хотя, что бы это изменило?\n"
@@ -2636,21 +2631,9 @@ void score(int scorePlayer, int scoreOpponent)
     std::cout << "\n\n";
 }
 
-bool deleteName(std::vector<std::string>& namesTeamOpponent, std::vector<std::string>& usingNameTeam, int choiceTeamName)
+void deleteName(std::vector<std::string>& namesTeamOpponent, int choiceTeamName)
 {
-    if (!usingNameTeam.empty())
-    {
-        for (std::string name : namesTeamOpponent)
-        {
-            for (std::string usName : usingNameTeam)
-            {
-                if (usName == name)
-                {
-                    return false;
-                }
-            }
-        }
-        usingNameTeam.push_back(namesTeamOpponent[choiceTeamName]);
-        return true;
-    }
+    std::vector<std::string>::iterator team = namesTeamOpponent.begin();
+    namesTeamOpponent.erase(team + choiceTeamName);
+    engine::allTeamTournament--;
 }
