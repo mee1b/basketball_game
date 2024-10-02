@@ -9,14 +9,14 @@
 
 std::ofstream record;
 
-enum winOrLose
+enum class winOrLose
 {
     PLAYER_WIN,
     DRAW,
     PLAYER_LOSE   
 };
 
-enum Shots
+enum class shots
 {
     THREE_POINT_SHOT = 1,
     MEDIUM_SHOT,
@@ -27,7 +27,7 @@ enum Shots
     HAND_GOD_SHOT
 };
 
-enum defense
+enum class defense
 {
     CHOICE_DEFENSE,
     PRESSING,
@@ -37,14 +37,14 @@ enum defense
     RULES_DEFENSE
 };
 
-enum playerHints
+enum class playerHints
 {
     EXPERT = 1,
     AMATEUR,
     NOOB
 };
 
-enum spirit
+enum class spirit
 {
     MAX_SPIRIT = 10,
     MIN_SPIRIT = -10,
@@ -53,7 +53,7 @@ enum spirit
     MORE_POINT = 5,
 };
 
-enum posessionBall
+enum class posessionBall
 {
     PLAYER_BALL = 1,
     OPPONENT_BALL,
@@ -61,14 +61,14 @@ enum posessionBall
 
 };
 
-enum situationShow
+enum class situationShow
 {
     FIRST_STORY = 1,
     SECOND_STORY,
     THIRD_STORY
 };
 
-enum testing
+enum class testing
 {
     TEST = 1,
     UNTEST
@@ -107,6 +107,7 @@ namespace menu
     int jump{};
     int hint{};
     const int RULES_GAME{ 1 };
+    const int ONE_GAME{ 2 };
     const int TOURNAMENT{ 3 };
     const int AUTHOR_GAME{ 4 };
     const int EXIT_GAME{ 5 };
@@ -126,7 +127,7 @@ namespace menu
     const std::string WELCOME = "Добро пожаловать в игру \"Баскетбол\"\n";
     const std::string START_MENU = "1. Правила игры.\n2. Начать игру.\n3. Режим турнира.\n4. Об авторе.\n5. Выйти из игры.\n\nДля продолжения выберете действие: ";
     const std::string CHOICE_HINT = "Выберите режим подсказок:\n1.Опытный(без подсказок).\n2.Любитель(подсказки появляются по нажатию клавиши)\n3.Новичок(подсказки выводятся всегда)\n\nВаш выбор: ";
-    const std::string AUTHOR = "Студия разработки игр Dialas представляет.\nАвтор: Медведенко Егор(ник: mee1b).\nВерсия: 1.0.8.\n\n";
+    const std::string AUTHOR = "Студия разработки игр Dialas представляет.\nАвтор: Медведенко Егор(ник: mee1b).\nВерсия: 1.1.0.\n\n";
     const std::string TABLO = "Счет: ";
 }
 
@@ -186,6 +187,12 @@ namespace history
     const std::string YOUR_TEAM_SPIRIT = "\nВаш командный дух равен ";
     const std::string STANDART_OPPONENT_NAME = "Колледж Оклахомы";
     const std::string PLAYER_TEAM_NAME = "Колледж Алабамы";
+    const std::string LOSE_TOURNAMENT = "К сожалению, ты проиграл турнир.\nНо не вешай нос! Этот турнир не последний!\nУдачи в следующий раз!";
+    const std::string DRAW_TOURNAMENT = "К сожалению, ты проиграл турнир. Из-за большого количества ничьюх не хватило очков.\nНо не вешай нос! Этот турнир не последний!\nУдачи в следующий раз!";
+    const std::string WIN_TOURNAMENT = "Вот он ЧЕМПИОН!!!\nСегодня все поют песни только в твою честь!\nЛюбят только тебя и твоих товарищей!\nМедали на шее, но помни расслабляться рано! Впереди ждут новые победы!!!";
+    const std::string FIRST_GAME = "Первая игра турнира против команды ";
+    const std::string SECOND_GAME = "Полуфинал турнира против команды ";
+    const std::string LAST_GAME = "Финальная игра турнира против команды ";
 }
 
 namespace attack
@@ -223,6 +230,12 @@ namespace defend
     const std::string QUESTION_DEFENSE = "Какой будет наша защита? ";
     const std::string UNKNOW_TACTICS = "На тренировках мы не разбирали эти схемы, капитан!\nДавай сыграем то, что мы уже знаем!\n";
     const std::string REBOUND_IN_DEFENSE = "\nПодбор в защите за командой: ";
+    const std::string DEFENSE_OPPONENT = "Защита команды ";
+    const std::string PRESSING_OPPONENT = " - прессинг\n";
+    const std::string PERSONAL_OPPONENT = " - личная опека\n";
+    const std::string TEAM_OPPONENT = "Команда ";
+    const std::string ZONE_OPPONENT = " играет зонную защиту\n";
+    const std::string NONE_DEFENSE_OPPONENT = " расслабилась - у них нет защиты\n";
 }
 
 struct Situation
@@ -293,7 +306,6 @@ void deleteName(std::vector<std::string>& namesTeamOpponent, int choiceTeamName)
 
 int main()
 {
-    setlocale(LC_ALL, "rus");
     SetConsoleCP(1251);
     SetConsoleOutputCP(1251);
     srand(static_cast<unsigned int>(time(0)));
@@ -311,7 +323,7 @@ int main()
     getline(std::cin, engine::userText);
     userComment(engine::userText, menu::CHOICE_MENU, engine::userChoice);
     recording(engine::userChoice);
-    while (engine::userChoice < TEST || engine::userChoice > UNTEST)
+    while (engine::userChoice < static_cast<int>(testing::TEST) || engine::userChoice > static_cast<int>(testing::UNTEST))
     {
         std::cout << menu::REPEAT;
         recording(menu::REPEAT);
@@ -321,10 +333,10 @@ int main()
     }
     switch (engine::userChoice)
     {
-    case TEST:
+    case static_cast<int>(testing::TEST):
         test::testingEnabled = true;
         break;
-    case UNTEST:
+    case static_cast<int>(testing::UNTEST):
         test::testingEnabled = false;
         break;
     }
@@ -340,164 +352,177 @@ int main()
 
     gameRulesRecord();
     startMenu();
-    if (menu::startGame == menu::EXIT_GAME) { return 0; }
-    else if (menu::startGame == menu::TOURNAMENT)
+    while (menu::startGame != menu::EXIT_GAME)
     {
-        engine::resoultTournament = tournament(player, opponent);
-        switch (engine::resoultTournament)
+        if (menu::startGame == menu::TOURNAMENT)
         {
-        case PLAYER_LOSE: 
-            system("cls");
-            std::cout << "К сожалению, ты проиграл турнир.\nНо не вешай нос! Этот турнир не последний!\nУдачи в следующий раз!";
-            system("pause");
-            return 0;
-        case DRAW:
-            system("cls");
-            std::cout << "К сожалению, ты проиграл турнир. Из-за большого количества ничьюх не хватило очков.\nНо не вешай нос! Этот турнир не последний!\nУдачи в следующий раз!";
-            system("pause");
-            return 0;
-        case PLAYER_WIN:
-            std::cout << "Вот он ЧЕМПИОН!!!\nСегодня все поют песни только в твою честь!\nЛюбят только тебя и твоих товарищей!\nМедали на шее, но помни расслабляться рано! Впереди ждут новые победы!!!";
-            system("pause");
-            return 0;
+            engine::resoultTournament = tournament(player, opponent);
+            switch (engine::resoultTournament)
+            {
+            case static_cast<int>(winOrLose::PLAYER_LOSE):
+                system("cls");
+                std::cout << history::LOSE_TOURNAMENT;
+                recording(history::LOSE_TOURNAMENT);
+                system("pause");
+                startMenu();
+                break;
+            case static_cast<int>(winOrLose::DRAW):
+                system("cls");
+                std::cout << history::DRAW_TOURNAMENT;
+                recording(history::DRAW_TOURNAMENT);
+                system("pause");
+                startMenu();
+                break;
+            case static_cast<int>(winOrLose::PLAYER_WIN):
+                std::cout << history::WIN_TOURNAMENT;
+                recording(history::WIN_TOURNAMENT);
+                system("pause");
+                startMenu();
+                break;
+            }
         }
-    }
-
-    hints();
-
-    std::cout << menu::OPPONENT_NAME_CHOICE;
-    recording(menu::OPPONENT_NAME_CHOICE);
-    std::getline(std::cin, opponent.name);
-    if (opponent.name != engine::EMPTY_STRING)
-    {
-        userComment(menu::OPPONENT_NAME_CHOICE, opponent.name);
-    }
-    if (opponent.name == engine::EMPTY_STRING)
-    {
-        opponent.name = history::STANDART_OPPONENT_NAME;
-    }
-    
-    recording(opponent.name);
-
-    if (test::testingEnabled)
-    {
-        std::cout << test::CHOICE_TEAM_SPIRIT;
-        recording(test::CHOICE_TEAM_SPIRIT);
-        getline(std::cin, engine::userText);
-        userComment(engine::userText, test::CHOICE_TEAM_SPIRIT, player.teamSpirit);
-        while (player.teamSpirit > MAX_SPIRIT || player.teamSpirit < MIN_SPIRIT)
+        else if (menu::startGame == menu::ONE_GAME)
         {
-            std::cout << menu::REPEAT;
-            getline(std::cin, engine::userText);
-            userComment(engine::userText, menu::REPEAT, player.teamSpirit);
-        }
-        recording(player.teamSpirit);
-        system("cls");
-        std::cout << test::CHOICE_SCENE;
-        recording(test::CHOICE_SCENE);
-        int show;
-        getline(std::cin, engine::userText);
-        userComment(engine::userText, test::CHOICE_SCENE, show);
-        recording(show);
-        switch (show)
-        {
-        case FIRST_STORY:
-            situationOne(player.teamSpirit);
-            break;
-        case SECOND_STORY:
-            situationTwo(player.teamSpirit);
-            break;
-        case THIRD_STORY:
-            situationThree(player.teamSpirit);
-            break;
-        default:
-            std::cout << test::NONE_SCENE;
-            recording(test::NONE_SCENE);
-            Sleep(1000);
+            hints();
+            engine::period = engine::PERIOD_START;
+            player.score = engine::ZERO;
+            opponent.score = engine::ZERO;
+
+            std::cout << menu::OPPONENT_NAME_CHOICE;
+            recording(menu::OPPONENT_NAME_CHOICE);
+            std::getline(std::cin, opponent.name);
+            if (opponent.name != engine::EMPTY_STRING)
+            {
+                userComment(menu::OPPONENT_NAME_CHOICE, opponent.name);
+            }
+            if (opponent.name == engine::EMPTY_STRING)
+            {
+                opponent.name = history::STANDART_OPPONENT_NAME;
+            }
+
+            recording(opponent.name);
+
+            if (test::testingEnabled)
+            {
+                std::cout << test::CHOICE_TEAM_SPIRIT;
+                recording(test::CHOICE_TEAM_SPIRIT);
+                getline(std::cin, engine::userText);
+                userComment(engine::userText, test::CHOICE_TEAM_SPIRIT, player.teamSpirit);
+                while (player.teamSpirit > static_cast<int>(spirit::MAX_SPIRIT) || player.teamSpirit < static_cast<int>(spirit::MIN_SPIRIT))
+                {
+                    std::cout << menu::REPEAT;
+                    getline(std::cin, engine::userText);
+                    userComment(engine::userText, menu::REPEAT, player.teamSpirit);
+                }
+                recording(player.teamSpirit);
+                system("cls");
+                std::cout << test::CHOICE_SCENE;
+                recording(test::CHOICE_SCENE);
+                int show;
+                getline(std::cin, engine::userText);
+                userComment(engine::userText, test::CHOICE_SCENE, show);
+                recording(show);
+                switch (show)
+                {
+                case static_cast<int>(situationShow::FIRST_STORY):
+                    situationOne(player.teamSpirit);
+                    break;
+                case static_cast<int>(situationShow::SECOND_STORY):
+                    situationTwo(player.teamSpirit);
+                    break;
+                case static_cast<int>(situationShow::THIRD_STORY):
+                    situationThree(player.teamSpirit);
+                    break;
+                default:
+                    std::cout << test::NONE_SCENE;
+                    recording(test::NONE_SCENE);
+                    Sleep(1000);
+                    system("cls");
+                    break;
+                }
+
+            }
+
+            std::cout << menu::START_DEFENSE;
+            recording(menu::START_DEFENSE);
+            choiceDefense(player.defense);
+            recording(player.defense);
+            player.name = history::PLAYER_TEAM_NAME;
+            opponent.defense = player.defense;
+            std::cout << "\n";
+
             system("cls");
-            break;
-        }
 
-    }
-    
-    std::cout << menu::START_DEFENSE;
-    recording(menu::START_DEFENSE);
-    choiceDefense(player.defense);
-    recording(player.defense);
-    player.name = history::PLAYER_TEAM_NAME;
-    opponent.defense = player.defense;
-    std::cout << "\n";
+            jumpBall(menu::jump);
+            if (menu::jump == static_cast<int>(posessionBall::PLAYER_BALL))
+            {
+                std::cout << menu::WIN_BALL_JUMP;
+                recording(menu::WIN_BALL_JUMP);
+                std::cout << player.name << ".\n\n";
+                recording(player.name);
+            }
+            else
+            {
+                std::cout << menu::WIN_BALL_JUMP;
+                recording(menu::WIN_BALL_JUMP);
+                std::cout << opponent.name << ".\n\n";
+                recording(opponent.name);
+            }
 
-    system("cls");
-
-    jumpBall(menu::jump);
-    if (menu::jump == PLAYER_BALL)
-    {
-        std::cout << menu::WIN_BALL_JUMP;
-        recording(menu::WIN_BALL_JUMP);
-        std::cout << player.name << ".\n\n";
-        recording(player.name);
+            game(player, opponent);
+            std::cout << menu::TIMEOUT;
+            recording(menu::TIMEOUT);
+            system("pause");
+            system("cls");
+            std::cout << menu::SECOND_TIME;
+            recording(menu::SECOND_TIME);
+            if (menu::jump == static_cast<int>(posessionBall::PLAYER_BALL))
+            {
+                menu::jump = static_cast<int>(posessionBall::OPPONENT_BALL);
+            }
+            else
+            {
+                menu::jump = static_cast<int>(posessionBall::PLAYER_BALL);
+            }
+            engine::period = engine::PERIOD_START;
+            game(player, opponent);
+            std::cout << menu::FINAL;
+            recording(menu::FINAL);
+            std::cout << player.name;
+            recording(player.name);
+            std::cout << ' ';
+            std::cout << player.score;
+            recording(player.score);
+            std::cout << ' ';
+            std::cout << opponent.name;
+            recording(opponent.name);
+            std::cout << ": ";
+            std::cout << opponent.score << ".\n";
+            recording(opponent.score);
+            if (player.score > opponent.score)
+            {
+                std::cout << menu::HOORAY;
+                recording(menu::HOORAY);
+                std::cout << player.name;
+                recording(player.name);
+            }
+            else if (player.score < opponent.score)
+            {
+                std::cout << menu::HOORAY;
+                recording(menu::HOORAY);
+                std::cout << opponent.name;
+                recording(opponent.name);
+            }
+            else
+            {
+                std::cout << menu::DRAW;
+                recording(menu::DRAW);
+            }
+            std::cout << std::endl;
+            system("pause");
+            startMenu();
+        }  
     }
-    else
-    {
-        std::cout << menu::WIN_BALL_JUMP;
-        recording(menu::WIN_BALL_JUMP);
-        std::cout << opponent.name << ".\n\n";
-        recording(opponent.name);
-    }
-
-    game(player, opponent);
-    std::cout << menu::TIMEOUT;
-    recording(menu::TIMEOUT);
-    system("pause");
-    system("cls");
-    std::cout << menu::SECOND_TIME;
-    recording(menu::SECOND_TIME);
-    if (menu::jump == PLAYER_BALL)
-    {
-        menu::jump = OPPONENT_BALL;
-    }
-    else
-    {
-        menu::jump = PLAYER_BALL;
-    }
-    engine::period = engine::PERIOD_START;
-    game(player, opponent);
-    std::cout << menu::FINAL;
-    recording(menu::FINAL);
-    std::cout << player.name;
-    recording(player.name);
-    std::cout << ' ';
-    std::cout << player.score;
-    recording(player.score);
-    std::cout << ' ';
-    std::cout << opponent.name;
-    recording(opponent.name);
-    std::cout << ": ";
-    std::cout  << opponent.score << ".\n";
-    recording(opponent.score);
-    if (player.score > opponent.score)
-    {
-        std::cout << menu::HOORAY;
-        recording(menu::HOORAY);
-        std::cout << player.name;
-        recording(player.name);
-    }
-    else if (player.score < opponent.score)
-    {
-        std::cout << menu::HOORAY;
-        recording(menu::HOORAY);
-        std::cout << opponent.name;
-        recording(opponent.name);
-    }
-    else
-    {
-        std::cout << menu::DRAW;
-        recording(menu::DRAW);
-    }
-    std::cout << std::endl;
-    system("pause");
-    return 0;
 }
 
 void recording(std::string comment)
@@ -554,7 +579,7 @@ void userComment(std::string gameText, std::string& userChoice)
 int tournament(Player& player, Opponent& opponent)
 {
     int gamesDraw{ 0 };
-    std::vector<std::string> namesTeamOpponent{ "Колледж Чикаго", "Колледж Вашингтона", "Колледж Аляски", "Колледж Огайо", "Далласский колледж", "Колледж Техаса", "Колледж Минесоты", "Колледж Финикса"};
+    std::vector<std::string> namesTeamOpponent{ "Колледж Иллинойс", "Колледж Вашингтона", "Колледж Аляски", "Колледж Огайо", "Далласский колледж", "Колледж Техаса", "Колледж Минесоты", "Колледж Аризоны"};
 
     int choiceTeamName{};
     hints();
@@ -578,19 +603,28 @@ int tournament(Player& player, Opponent& opponent)
         case 1:
             system("cls");
             situationOne(player.teamSpirit);
-            std::cout << "Первая игра турнира против команды " << opponent.name << std::endl;
+            std::cout << history::FIRST_GAME;
+            recording(history::FIRST_GAME);
+            std::cout << opponent.name << std::endl;
+            recording(opponent.name);
             break;
         case 2:
             system("cls");
             situationTwo(player.teamSpirit);
-            std::cout << "Полуфинал турнира против команды " << opponent.name << std::endl;
-            opponent.teamSpiritOpponent += MORE_POINT;
+            std::cout << history::SECOND_GAME;
+            recording(history::SECOND_GAME);
+            std::cout << opponent.name << std::endl;
+            recording(opponent.name);
+            opponent.teamSpiritOpponent += static_cast<int>(spirit::MORE_POINT);
             break;
         case 3:
             system("cls");
             situationThree(player.teamSpirit);
-            std::cout << "Финальная игра турнира против команды " << opponent.name << std::endl;
-            opponent.teamSpiritOpponent += MORE_POINT;
+            std::cout << history::LAST_GAME;
+            recording(history::LAST_GAME);
+            std::cout << opponent.name << std::endl;
+            recording(opponent.name);
+            opponent.teamSpiritOpponent += static_cast<int>(spirit::MORE_POINT);
             break;
         }
 
@@ -604,7 +638,7 @@ int tournament(Player& player, Opponent& opponent)
         system("cls");
 
         jumpBall(menu::jump);
-        if (menu::jump == PLAYER_BALL)
+        if (menu::jump == static_cast<int>(posessionBall::PLAYER_BALL))
         {
             std::cout << menu::WIN_BALL_JUMP;
             recording(menu::WIN_BALL_JUMP);
@@ -626,13 +660,13 @@ int tournament(Player& player, Opponent& opponent)
         system("cls");
         std::cout << menu::SECOND_TIME;
         recording(menu::SECOND_TIME);
-        if (menu::jump == PLAYER_BALL)
+        if (menu::jump == static_cast<int>(posessionBall::PLAYER_BALL))
         {
-            menu::jump = OPPONENT_BALL;
+            menu::jump = static_cast<int>(posessionBall::OPPONENT_BALL);
         }
         else
         {
-            menu::jump = PLAYER_BALL;
+            menu::jump = static_cast<int>(posessionBall::PLAYER_BALL);
         }
         engine::period = engine::PERIOD_START;
         game(player, opponent);
@@ -659,11 +693,11 @@ int tournament(Player& player, Opponent& opponent)
         else if (player.score < opponent.score)
         {
             system("pause");
-            return PLAYER_LOSE;
+            return static_cast<int>(winOrLose::PLAYER_LOSE);
         }
         else
         {
-            if (gamesDraw == engine::MAX_DRAW) { system("pause");  return DRAW; }
+            if (gamesDraw == engine::MAX_DRAW) { system("pause");  return static_cast<int>(winOrLose::DRAW); }
             std::cout << menu::DRAW;
             recording(menu::DRAW);
             gamesDraw++;
@@ -674,11 +708,12 @@ int tournament(Player& player, Opponent& opponent)
 
         engine::howGame++;
     }
-    return PLAYER_WIN;
+    return static_cast<int>(winOrLose::PLAYER_WIN);
 }
 
 void startMenu()
 {
+    system("cls");
     std::cout << menu::WELCOME;
     recording(menu::WELCOME);
     std::cout << menu::START_MENU;
@@ -732,7 +767,7 @@ void hints()
     getline(std::cin, engine::userText);
     userComment(engine::userText, menu::CHOICE_HINT, menu::hint);
     recording(menu::hint);
-    while (menu::hint > NOOB || menu::hint < EXPERT)
+    while (menu::hint > static_cast<int>(playerHints::NOOB) || menu::hint < static_cast<int>(playerHints::EXPERT))
     {
         std::cout << menu::REPEAT;
         recording(menu::REPEAT);
@@ -845,9 +880,9 @@ void situationOne(int& teamSpirit)
         std::cout << situation.riscVictory;
         recording(situation.riscVictory);
         teamSpirit += history::ADD_SPIRIT_VICTORY;
-        if (teamSpirit > MAX_SPIRIT)
+        if (teamSpirit > static_cast<int>(spirit::MAX_SPIRIT))
         {
-            teamSpirit = MAX_SPIRIT;
+            teamSpirit = static_cast<int>(spirit::MAX_SPIRIT);
         }
         std::cout << history::YOUR_TEAM_SPIRIT;
         recording(history::YOUR_TEAM_SPIRIT);
@@ -870,9 +905,9 @@ void situationOne(int& teamSpirit)
         std::cout << situation.riscFail;
         recording(situation.riscFail);
         teamSpirit += history::REM_SPIRIT_FAIL;
-        if (teamSpirit < MIN_SPIRIT)
+        if (teamSpirit < static_cast<int>(spirit::MIN_SPIRIT))
         {
-            teamSpirit = MIN_SPIRIT;
+            teamSpirit = static_cast<int>(spirit::MIN_SPIRIT);
         }
         std::cout << history::YOUR_TEAM_SPIRIT;
         recording(history::YOUR_TEAM_SPIRIT);
@@ -899,9 +934,9 @@ void situationOne(int& teamSpirit)
         std::cout << situation.riscNone;
         recording(situation.riscNone);
         teamSpirit += history::NONE_RISC_SPIRIT;
-        if (teamSpirit < MIN_SPIRIT)
+        if (teamSpirit < static_cast<int>(spirit::MIN_SPIRIT))
         {
-            teamSpirit = MIN_SPIRIT;
+            teamSpirit = static_cast<int>(spirit::MIN_SPIRIT);
         }
         std::cout << history::YOUR_TEAM_SPIRIT;
         recording(history::YOUR_TEAM_SPIRIT);
@@ -962,9 +997,9 @@ void situationTwo(int& teamSpirit)
         std::cout << situation.riscVictory;
         recording(situation.riscVictory);
         teamSpirit += history::ADD_SPIRIT_VICTORY;
-        if (teamSpirit > MAX_SPIRIT)
+        if (teamSpirit > static_cast<int>(spirit::MAX_SPIRIT))
         {
-            teamSpirit = MAX_SPIRIT;
+            teamSpirit = static_cast<int>(spirit::MAX_SPIRIT);
         }
         std::cout << history::YOUR_TEAM_SPIRIT;
         recording(history::YOUR_TEAM_SPIRIT);
@@ -983,7 +1018,7 @@ void situationTwo(int& teamSpirit)
             "Обычно живая и весёлая, сегодня она была молчалива.\n"
             "Когда же тебе удалось разговорить девушку, выяснилось, что её отец вынужден был сменить работу,\n"
             "из-за чего им придётся переехать куда-то в Африку, где беда не то, что с интернетом,\n"
-            "там даже электричество и вода есть не всегда.\n";
+            "там даже электричество и вода есть не всегда.\n"
             "Алисон сказала,что, возможно, ей удастся приехать на будущий год, но тебе показалось,\n"
             "что она и сама не слишком верит в это.\n"
             "Быть может, тебе стоило признаться в своих чувствах раньше, хотя, что бы это изменило?\n"
@@ -992,9 +1027,9 @@ void situationTwo(int& teamSpirit)
         std::cout << situation.riscFail;
         recording(situation.riscFail);
         teamSpirit += history::REM_SPIRIT_FAIL;
-        if (teamSpirit < MIN_SPIRIT)
+        if (teamSpirit < static_cast<int>(spirit::MIN_SPIRIT))
         {
-            teamSpirit = MIN_SPIRIT;
+            teamSpirit = static_cast<int>(spirit::MIN_SPIRIT);
         }
         std::cout << history::YOUR_TEAM_SPIRIT;
         recording(history::YOUR_TEAM_SPIRIT);
@@ -1006,16 +1041,16 @@ void situationTwo(int& teamSpirit)
     else
     {
         situation.riscNone =
-            "Мысленно обозвав себя трусом, ты  всё же отложил телефон.\n"
+            "Мысленно обозвав себя трусом, ты всё же отложил телефон.\n"
             "Ты попытался переключиться на предстоящую завтра игру,\n"
             "но мысли снова и снова возвращались к Алисон.\n"
             "Ты проснулся с головной болью, так как заснуть удалось лишь под утро.\n";
         std::cout << situation.riscNone;
         recording(situation.riscNone);
         teamSpirit += history::NONE_RISC_SPIRIT;
-        if (teamSpirit < MIN_SPIRIT)
+        if (teamSpirit < static_cast<int>(spirit::MIN_SPIRIT))
         {
-            teamSpirit = MIN_SPIRIT;
+            teamSpirit = static_cast<int>(spirit::MIN_SPIRIT);
         }
         std::cout << history::YOUR_TEAM_SPIRIT;
         recording(history::YOUR_TEAM_SPIRIT);
@@ -1079,9 +1114,9 @@ void situationThree(int& teamSpirit)
         std::cout << situation.riscVictory;
         recording(situation.riscVictory);
         teamSpirit += history::ADD_SPIRIT_VICTORY;
-        if (teamSpirit > MAX_SPIRIT)
+        if (teamSpirit > static_cast<int>(spirit::MAX_SPIRIT))
         {
-            teamSpirit = MAX_SPIRIT;
+            teamSpirit = static_cast<int>(spirit::MAX_SPIRIT);
         }
         std::cout << history::YOUR_TEAM_SPIRIT;
         recording(history::YOUR_TEAM_SPIRIT);
@@ -1103,9 +1138,9 @@ void situationThree(int& teamSpirit)
         std::cout << situation.riscFail;
         recording(situation.riscFail);
         teamSpirit += history::REM_SPIRIT_FAIL;
-        if (teamSpirit < MIN_SPIRIT)
+        if (teamSpirit < static_cast<int>(spirit::MIN_SPIRIT))
         {
-            teamSpirit = MIN_SPIRIT;
+            teamSpirit = static_cast<int>(spirit::MIN_SPIRIT);
         }
         std::cout << history::YOUR_TEAM_SPIRIT;
         recording(history::YOUR_TEAM_SPIRIT);
@@ -1124,9 +1159,9 @@ void situationThree(int& teamSpirit)
         std::cout << situation.riscNone;
         recording(situation.riscNone);
         teamSpirit += history::NONE_RISC_SPIRIT;
-        if (teamSpirit < MIN_SPIRIT)
+        if (teamSpirit < static_cast<int>(spirit::MIN_SPIRIT))
         {
-            teamSpirit = MIN_SPIRIT;
+            teamSpirit = static_cast<int>(spirit::MIN_SPIRIT);
         }
         std::cout << history::YOUR_TEAM_SPIRIT;
         recording(history::YOUR_TEAM_SPIRIT);
@@ -1140,19 +1175,19 @@ void situationThree(int& teamSpirit)
 
 void choiceDefense(int& defense)
 {
-    if (menu::hint == EXPERT)
+    if (menu::hint == static_cast<int>(playerHints::EXPERT))
     {
         getline(std::cin, engine::userText);
         userComment(engine::userText, defend::QUESTION_DEFENSE, defense);
     }
-    else if (menu::hint == AMATEUR)
+    else if (menu::hint == static_cast<int>(playerHints::AMATEUR))
     {
         std::cout << defend::SHOW_HINT;
         recording(defend::SHOW_HINT);
         getline(std::cin, engine::userText);
         userComment(engine::userText, defend::QUESTION_DEFENSE, defense);
         recording(defense);
-        while (defense == RULES_DEFENSE)
+        while (defense == static_cast<int>(defense::RULES_DEFENSE))
         {
             std::cout << menu::rulesDefense;
             recording(menu::rulesDefense);
@@ -1163,7 +1198,7 @@ void choiceDefense(int& defense)
             recording(defense);
         }
     }
-    else if (menu::hint == NOOB)
+    else if (menu::hint == static_cast<int>(playerHints::NOOB))
     {
         std::cout << "\n" << menu::rulesDefense;
         recording(menu::rulesDefense);
@@ -1171,7 +1206,7 @@ void choiceDefense(int& defense)
         userComment(engine::userText, menu::rulesDefense, defense);
         recording(defense);
     }
-    while (defense < PRESSING || defense > NONE_DEFENSE)
+    while (defense < static_cast<int>(defense::PRESSING) || defense > static_cast<int>(defense::NONE_DEFENSE))
     {
         std::cout << defend::UNKNOW_TACTICS;
         recording(defend::UNKNOW_TACTICS);
@@ -1186,13 +1221,13 @@ void choiceDefense(int& defense)
 void jumpBall(int& jump)
 {
     engine::probalityJump = rand() % 100 + 1;
-    if (engine::probalityJump > PROCENT_BALL_PLAYER)
+    if (engine::probalityJump > static_cast<int>(posessionBall::PROCENT_BALL_PLAYER))
     {
-        jump = PLAYER_BALL;
+        jump = static_cast<int>(posessionBall::PLAYER_BALL);
     }
     else
     {
-        jump = OPPONENT_BALL;
+        jump = static_cast<int>(posessionBall::OPPONENT_BALL);
     }
 }
 
@@ -1228,15 +1263,15 @@ void attackShot(int& shot, int teamSpirit)
 {
     switch (menu::hint)
     {
-    case EXPERT:
+    case static_cast<int>(playerHints::EXPERT):
         std::cout << attack::SHOT_CHOICE;
         recording(attack::SHOT_CHOICE);
         break;
-    case AMATEUR:
+    case static_cast<int>(playerHints::AMATEUR):
         std::cout << attack::SHOT_CHOICE_AND_HINT;
         recording(attack::SHOT_CHOICE_AND_HINT);
         break;
-    case NOOB:
+    case static_cast<int>(playerHints::NOOB):
         std::cout << menu::rulesShot;
         recording(menu::rulesShot);
         std::cout << attack::SHOT_CHOICE;
@@ -1246,7 +1281,7 @@ void attackShot(int& shot, int teamSpirit)
     userComment(engine::userText, attack::SHOT_CHOICE, shot);
     recording(shot);
 
-    while (shot == RULES_SHOT)
+    while (shot == static_cast<int>(shots::RULES_SHOT))
     {
         std::cout << menu::rulesShot;
         std::cout << attack::SUPERPOWER_HINT;
@@ -1258,21 +1293,21 @@ void attackShot(int& shot, int teamSpirit)
         recording(shot);
     }
     
-    if (shot == DIRTY_SHOT && teamSpirit <= DIRTY_SPIRIT)
+    if (shot == static_cast<int>(shots::DIRTY_SHOT) && teamSpirit <= static_cast<int>(spirit::DIRTY_SPIRIT))
     {
         return;
     }
-    else if (shot == HAND_GOD_SHOT && teamSpirit >= GOD_SPIRIT)
+    else if (shot == static_cast<int>(shots::HAND_GOD_SHOT) && teamSpirit >= static_cast<int>(spirit::GOD_SPIRIT))
     {
         return;
     }
-    while (shot < CHOICE_DEFENSE || shot > COMBINATIONT_SHOT)
+    while (shot < static_cast<int>(defense::CHOICE_DEFENSE) || shot > static_cast<int>(shots::COMBINATIONT_SHOT))
     {
-        if (shot == DIRTY_SHOT && teamSpirit <= DIRTY_SPIRIT)
+        if (shot == static_cast<int>(shots::DIRTY_SHOT) && teamSpirit <= static_cast<int>(spirit::DIRTY_SPIRIT))
         {
             return;
         }
-        else if (shot == HAND_GOD_SHOT && teamSpirit >= GOD_SPIRIT)
+        else if (shot == static_cast<int>(shots::HAND_GOD_SHOT) && teamSpirit >= static_cast<int>(spirit::GOD_SPIRIT))
         {
             return;
         }
@@ -1288,25 +1323,25 @@ void attackShot(int& shot, int teamSpirit)
 
 bool playerAttack(Player& player, Opponent& opponent)
 {
-    if (player.teamSpirit >= MAX_SPIRIT)
+    if (player.teamSpirit >= static_cast<int>(spirit::MAX_SPIRIT))
     {
-        player.teamSpirit = MAX_SPIRIT;
+        player.teamSpirit = static_cast<int>(spirit::MAX_SPIRIT);
     }
-    else if (player.teamSpirit <= MIN_SPIRIT)
+    else if (player.teamSpirit <= static_cast<int>(spirit::MIN_SPIRIT))
     {
-        player.teamSpirit = MIN_SPIRIT;
+        player.teamSpirit = static_cast<int>(spirit::MIN_SPIRIT);
     }
 
     std::cout << history::YOUR_TEAM_SPIRIT;
     recording(history::YOUR_TEAM_SPIRIT);
     std::cout << player.teamSpirit << std::endl;
     recording(player.teamSpirit);
-    if (player.teamSpirit <= DIRTY_SPIRIT && (menu::hint == AMATEUR || menu::hint == NOOB))
+    if (player.teamSpirit <= static_cast<int>(spirit::DIRTY_SPIRIT) && (menu::hint == static_cast<int>(playerHints::AMATEUR) || menu::hint == static_cast<int>(playerHints::NOOB)))
     {
         std::cout << attack::OPEN_DIRTY;
         recording(attack::OPEN_DIRTY);
     }
-    else if (player.teamSpirit >= GOD_SPIRIT && (menu::hint == AMATEUR || menu::hint == NOOB))
+    else if (player.teamSpirit >= static_cast<int>(spirit::GOD_SPIRIT) && (menu::hint == static_cast<int>(playerHints::AMATEUR) || menu::hint == static_cast<int>(playerHints::NOOB)))
     {
         std::cout << attack::OPEN_HAND;
         recording(attack::OPEN_HAND);
@@ -1315,11 +1350,11 @@ bool playerAttack(Player& player, Opponent& opponent)
 
     switch (player.shot)
     {
-    case THREE_POINT_SHOT:
-    case COMBINATIONT_SHOT:
+    case static_cast<int>(shots::THREE_POINT_SHOT):
+    case static_cast<int>(shots::COMBINATIONT_SHOT):
         if (engine::countZoneDefense == engine::SWITCH_DEFENSE)
         {
-            opponent.defense = ZONE_DEFENSE;
+            opponent.defense = static_cast<int>(defense::ZONE_DEFENSE);
             engine::countZoneDefense = engine::ZERO;
             break;
         }
@@ -1327,11 +1362,11 @@ bool playerAttack(Player& player, Opponent& opponent)
         engine::countPersonalDefense = engine::ZERO;
         break;
 
-    case MEDIUM_SHOT:
-    case LAY_UP_SHOT:
+    case static_cast<int>(shots::MEDIUM_SHOT):
+    case static_cast<int>(shots::LAY_UP_SHOT):
         if (engine::countPersonalDefense == engine::SWITCH_DEFENSE)
         {
-            opponent.defense = PERSONAL_DEFENSE;
+            opponent.defense = static_cast<int>(defense::PERSONAL_DEFENSE);
             engine::countPersonalDefense = engine::ZERO;
             break;
         }
@@ -1341,17 +1376,17 @@ bool playerAttack(Player& player, Opponent& opponent)
     }
     if (player.score - opponent.score >= opponent.DIRTY_DEEP)
     {
-        opponent.defense = PRESSING;
+        opponent.defense = static_cast<int>(defense::PRESSING);
     }
     else if (opponent.score - player.score >= opponent.DIRTY_DEEP)
     {
-        opponent.defense = NONE_DEFENSE;
+        opponent.defense = static_cast<int>(defense::NONE_DEFENSE);
     }
 
     std::cout << "\n";
-    while (player.shot == CHOICE_DEFENSE)
+    while (player.shot == static_cast<int>(defense::CHOICE_DEFENSE))
     {
-        if (player.shot == CHOICE_DEFENSE)
+        if (player.shot == static_cast<int>(defense::CHOICE_DEFENSE))
         {
             std::cout << defend::QUESTION_DEFENSE;
             recording(defend::QUESTION_DEFENSE);
@@ -1359,7 +1394,7 @@ bool playerAttack(Player& player, Opponent& opponent)
             attackShot(player.shot, player.teamSpirit);
         }
     }
-    if (player.shot == THREE_POINT_SHOT)
+    if (player.shot == static_cast<int>(shots::THREE_POINT_SHOT))
     {
         //Шанс трехочкового 40% - базовый
         std::cout << attack::THREE_POINT;
@@ -1367,7 +1402,7 @@ bool playerAttack(Player& player, Opponent& opponent)
         probabilityHitPlayer(player.hit, player.teamSpirit);
         switch (opponent.defense)
         {
-        case PRESSING:
+        case static_cast<int>(defense::PRESSING):
             if (test::testingEnabled)
             {
                 std::cout << test::TEST_THREE_PRESSING;
@@ -1381,7 +1416,7 @@ bool playerAttack(Player& player, Opponent& opponent)
                 recording(attack::ADD_THREE);
                 player.score += engine::THREE_POINT;
                 score(player.score, opponent.score);
-                player.teamSpirit += MORE_POINT;
+                player.teamSpirit += static_cast<int>(spirit::MORE_POINT);
                 return true;
             }
             else
@@ -1390,7 +1425,7 @@ bool playerAttack(Player& player, Opponent& opponent)
                 recording(attack::LOSE_SHOT);
                 return false;
             }
-        case PERSONAL_DEFENSE:
+        case static_cast<int>(defense::PERSONAL_DEFENSE):
             if (test::testingEnabled)
             {
                 std::cout << test::TEST_THREE_PERSONAL_DEFENSE;
@@ -1404,7 +1439,7 @@ bool playerAttack(Player& player, Opponent& opponent)
                 recording(attack::ADD_THREE);
                 player.score += engine::THREE_POINT;
                 score(player.score, opponent.score);
-                player.teamSpirit += MORE_POINT;
+                player.teamSpirit += static_cast<int>(spirit::MORE_POINT);
                 return true;
             }
             else
@@ -1413,7 +1448,7 @@ bool playerAttack(Player& player, Opponent& opponent)
                 recording(attack::LOSE_SHOT);
                 return false;
             }
-        case ZONE_DEFENSE:
+        case static_cast<int>(defense::ZONE_DEFENSE):
             if (test::testingEnabled)
             {
                 std::cout << test::TEST_THREE_ZONE_DEFENSE;
@@ -1428,7 +1463,7 @@ bool playerAttack(Player& player, Opponent& opponent)
                 recording(attack::ADD_THREE);
                 player.score += engine::THREE_POINT;
                 score(player.score, opponent.score);
-                player.teamSpirit += MORE_POINT;
+                player.teamSpirit += static_cast<int>(spirit::MORE_POINT);
                 return true;
             }
             else
@@ -1437,7 +1472,7 @@ bool playerAttack(Player& player, Opponent& opponent)
                 recording(attack::LOSE_SHOT);
                 return false;
             }
-        case NONE_DEFENSE:
+        case static_cast<int>(defense::NONE_DEFENSE):
             if (test::testingEnabled)
             {
                 std::cout << test::TEST_THREE_NONE_DEFENSE;
@@ -1451,7 +1486,7 @@ bool playerAttack(Player& player, Opponent& opponent)
                 recording(attack::ADD_THREE);
                 player.score += engine::THREE_POINT;
                 score(player.score, opponent.score);
-                player.teamSpirit += MORE_POINT;
+                player.teamSpirit += static_cast<int>(spirit::MORE_POINT);
                 return true;
             }
             else
@@ -1463,7 +1498,7 @@ bool playerAttack(Player& player, Opponent& opponent)
         }
 
     }
-    if (player.shot == MEDIUM_SHOT)
+    if (player.shot == static_cast<int>(shots::MEDIUM_SHOT))
     {
         //Шанс двухочкового 50% - базовый
         std::cout << attack::MEDIUM_SHOT;
@@ -1471,7 +1506,7 @@ bool playerAttack(Player& player, Opponent& opponent)
         probabilityHitPlayer(player.hit, player.teamSpirit);
         switch (opponent.defense)
         {
-        case PRESSING:
+        case static_cast<int>(defense::PRESSING):
             if (test::testingEnabled)
             {
                 std::cout << test::TEST_MEDIUM_PRESSING;
@@ -1485,7 +1520,7 @@ bool playerAttack(Player& player, Opponent& opponent)
                 recording(attack::ADD_TWO);
                 player.score += engine::TWO_POINT;
                 score(player.score, opponent.score);
-                player.teamSpirit += MORE_POINT;
+                player.teamSpirit += static_cast<int>(spirit::MORE_POINT);
                 return true;
             }
             else
@@ -1494,7 +1529,7 @@ bool playerAttack(Player& player, Opponent& opponent)
                 recording(attack::LOSE_SHOT);
                 return false;
             }
-        case PERSONAL_DEFENSE:
+        case static_cast<int>(defense::PERSONAL_DEFENSE):
             if (test::testingEnabled)
             {
                 std::cout << test::TEST_MEDIUM_PERSONAL_DEFENSE;
@@ -1508,7 +1543,7 @@ bool playerAttack(Player& player, Opponent& opponent)
                 recording(attack::ADD_TWO);
                 player.score += engine::TWO_POINT;
                 score(player.score, opponent.score);
-                player.teamSpirit += MORE_POINT;
+                player.teamSpirit += static_cast<int>(spirit::MORE_POINT);
                 return true;
             }
             else
@@ -1517,7 +1552,7 @@ bool playerAttack(Player& player, Opponent& opponent)
                 recording(attack::LOSE_SHOT);
                 return false;
             }
-        case ZONE_DEFENSE:
+        case static_cast<int>(defense::ZONE_DEFENSE):
             if (test::testingEnabled)
             {
                 std::cout << test::TEST_MEDIUM_ZONE_DEFENSE;
@@ -1531,7 +1566,7 @@ bool playerAttack(Player& player, Opponent& opponent)
                 recording(attack::ADD_TWO);
                 player.score += engine::TWO_POINT;
                 score(player.score, opponent.score);
-                player.teamSpirit += MORE_POINT;
+                player.teamSpirit += static_cast<int>(spirit::MORE_POINT);
                 return true;
             }
             else
@@ -1540,7 +1575,7 @@ bool playerAttack(Player& player, Opponent& opponent)
                 recording(attack::LOSE_SHOT);
                 return false;
             }
-        case NONE_DEFENSE:
+        case static_cast<int>(defense::NONE_DEFENSE):
             if (test::testingEnabled)
             {
                 std::cout << test::TEST_MEDIUM_NONE_DEFENSE;
@@ -1554,7 +1589,7 @@ bool playerAttack(Player& player, Opponent& opponent)
                 recording(attack::ADD_TWO);
                 player.score += engine::TWO_POINT;
                 score(player.score, opponent.score);
-                player.teamSpirit += MORE_POINT;
+                player.teamSpirit += static_cast<int>(spirit::MORE_POINT);
                 return true;
             }
             else
@@ -1565,7 +1600,7 @@ bool playerAttack(Player& player, Opponent& opponent)
             }
         }
     }
-    if (player.shot == LAY_UP_SHOT)
+    if (player.shot == static_cast<int>(shots::LAY_UP_SHOT))
     {
         //Шанс лэй - аппа 60% - базовый
         std::cout << attack::LAY_UP;
@@ -1579,7 +1614,7 @@ bool playerAttack(Player& player, Opponent& opponent)
         }
         switch (opponent.defense)
         {
-        case PRESSING:
+        case static_cast<int>(defense::PRESSING):
             if (test::testingEnabled)
             {
                 std::cout << test::TEST_LAY_UP_PRESSING;
@@ -1609,7 +1644,7 @@ bool playerAttack(Player& player, Opponent& opponent)
                 recording(attack::ADD_TWO);
                 player.score += engine::TWO_POINT;
                 score(player.score, opponent.score);
-                player.teamSpirit += MORE_POINT;
+                player.teamSpirit += static_cast<int>(spirit::MORE_POINT);
                 return true;
             }
             else
@@ -1618,7 +1653,7 @@ bool playerAttack(Player& player, Opponent& opponent)
                 recording(attack::LOSE_SHOT);
                 return false;
             }
-        case PERSONAL_DEFENSE:
+        case static_cast<int>(defense::PERSONAL_DEFENSE):
             if (test::testingEnabled)
             {
                 std::cout << test::TEST_LAY_UP_PERSONAL_DEFENSE;
@@ -1648,7 +1683,7 @@ bool playerAttack(Player& player, Opponent& opponent)
                 recording(attack::ADD_TWO);
                 player.score += engine::TWO_POINT;
                 score(player.score, opponent.score);
-                player.teamSpirit += MORE_POINT;
+                player.teamSpirit += static_cast<int>(spirit::MORE_POINT);
                 return true;
             }
             else
@@ -1657,7 +1692,7 @@ bool playerAttack(Player& player, Opponent& opponent)
                 recording(attack::LOSE_SHOT);
                 return false;
             }
-        case ZONE_DEFENSE:
+        case static_cast<int>(defense::ZONE_DEFENSE):
             if (test::testingEnabled)
             {
                 std::cout << test::TEST_LAY_UP_ZONE_DEFENSE;
@@ -1687,7 +1722,7 @@ bool playerAttack(Player& player, Opponent& opponent)
                 recording(attack::ADD_TWO);
                 player.score += engine::TWO_POINT;
                 score(player.score, opponent.score);
-                player.teamSpirit += MORE_POINT;
+                player.teamSpirit += static_cast<int>(spirit::MORE_POINT);
                 return true;
             }
             else
@@ -1696,7 +1731,7 @@ bool playerAttack(Player& player, Opponent& opponent)
                 recording(attack::LOSE_SHOT);
                 return false;
             }
-        case NONE_DEFENSE:
+        case static_cast<int>(defense::NONE_DEFENSE):
             if (test::testingEnabled)
             {
                 std::cout << test::TEST_LAY_UP_NONE_DEFENSE;
@@ -1726,7 +1761,7 @@ bool playerAttack(Player& player, Opponent& opponent)
                 recording(attack::ADD_TWO);
                 player.score += engine::TWO_POINT;
                 score(player.score, opponent.score);
-                player.teamSpirit += MORE_POINT;
+                player.teamSpirit += static_cast<int>(spirit::MORE_POINT);
                 return true;
             }
             else
@@ -1737,7 +1772,7 @@ bool playerAttack(Player& player, Opponent& opponent)
             }
         }
     }
-    if (player.shot == COMBINATIONT_SHOT)
+    if (player.shot == static_cast<int>(shots::COMBINATIONT_SHOT))
     {
         //Шанс комбинации 55% - базовый
         std::cout << attack::COMBINATION;
@@ -1751,7 +1786,7 @@ bool playerAttack(Player& player, Opponent& opponent)
         }
         switch (opponent.defense)
         {
-        case PRESSING:
+        case static_cast<int>(defense::PRESSING):
             if (test::testingEnabled)
             {
                 std::cout << test::TEST_COMBINATION_PRESSING;
@@ -1781,7 +1816,7 @@ bool playerAttack(Player& player, Opponent& opponent)
                 recording(attack::ADD_TWO);
                 player.score += engine::TWO_POINT;
                 score(player.score, opponent.score);
-                player.teamSpirit += MORE_POINT;
+                player.teamSpirit += static_cast<int>(spirit::MORE_POINT);
                 return true;
             }
             else
@@ -1790,7 +1825,7 @@ bool playerAttack(Player& player, Opponent& opponent)
                 recording(attack::LOSE_SHOT);
                 return false;
             }
-        case PERSONAL_DEFENSE:
+        case static_cast<int>(defense::PERSONAL_DEFENSE):
             if (test::testingEnabled)
             {
                 std::cout << test::TEST_COMBINATION_PERSONAL_DEFENSE;
@@ -1820,7 +1855,7 @@ bool playerAttack(Player& player, Opponent& opponent)
                 recording(attack::ADD_TWO);
                 player.score += engine::TWO_POINT;
                 score(player.score, opponent.score);
-                player.teamSpirit += MORE_POINT;
+                player.teamSpirit += static_cast<int>(spirit::MORE_POINT);
                 return true;
             }
             else
@@ -1829,7 +1864,7 @@ bool playerAttack(Player& player, Opponent& opponent)
                 recording(attack::LOSE_SHOT);
                 return false;
             }
-        case ZONE_DEFENSE:
+        case static_cast<int>(defense::ZONE_DEFENSE):
             if (test::testingEnabled)
             {
                 std::cout << test::TEST_COMBINATION_ZONE_DEFENSE;
@@ -1859,7 +1894,7 @@ bool playerAttack(Player& player, Opponent& opponent)
                 recording(attack::ADD_TWO);
                 player.score += engine::TWO_POINT;
                 score(player.score, opponent.score);
-                player.teamSpirit += MORE_POINT;
+                player.teamSpirit += static_cast<int>(spirit::MORE_POINT);
                 return true;
             }
             else
@@ -1868,7 +1903,7 @@ bool playerAttack(Player& player, Opponent& opponent)
                 recording(attack::LOSE_SHOT);
                 return false;
             }
-        case NONE_DEFENSE:
+        case static_cast<int>(defense::NONE_DEFENSE):
             if (test::testingEnabled)
             {
                 std::cout << test::TEST_COMBINATION_NONE_DEFENSE;
@@ -1898,7 +1933,7 @@ bool playerAttack(Player& player, Opponent& opponent)
                 recording(attack::ADD_TWO);
                 player.score += engine::TWO_POINT;
                 score(player.score, opponent.score);
-                player.teamSpirit += MORE_POINT;
+                player.teamSpirit += static_cast<int>(spirit::MORE_POINT);
                 return true;
             }
             else
@@ -1909,7 +1944,7 @@ bool playerAttack(Player& player, Opponent& opponent)
             }
         }
     }
-    if (player.shot == DIRTY_SHOT && player.teamSpirit <= DIRTY_SPIRIT)
+    if (player.shot == static_cast<int>(shots::DIRTY_SHOT) && player.teamSpirit <= static_cast<int>(spirit::DIRTY_SPIRIT))
     {
         if (test::testingEnabled)
         {
@@ -1940,7 +1975,7 @@ bool playerAttack(Player& player, Opponent& opponent)
         }
         return true;
     }
-    if (player.shot == HAND_GOD_SHOT && player.teamSpirit >= GOD_SPIRIT)
+    if (player.shot == static_cast<int>(shots::HAND_GOD_SHOT) && player.teamSpirit >= static_cast<int>(spirit::GOD_SPIRIT))
     {
         if (test::testingEnabled)
         {
@@ -1965,17 +2000,37 @@ bool opponentAttack(Player& player, Opponent& opponent)
 {
     switch (opponent.defense)
     {
-    case PRESSING:
-        std::cout << "Защита команды " << opponent.name << " - прессинг\n";
+    case static_cast<int>(defense::PRESSING):
+        std::cout << defend::DEFENSE_OPPONENT;
+        recording(defend::DEFENSE_OPPONENT);
+        std::cout << opponent.name;
+        recording(opponent.name);
+        std::cout << defend::PRESSING_OPPONENT;
+        recording(defend::PRESSING_OPPONENT);
         break;
-    case PERSONAL_DEFENSE:
-        std::cout << "Защита команды " << opponent.name << " - личная опека\n";
+    case static_cast<int>(defense::PERSONAL_DEFENSE):
+        std::cout << defend::DEFENSE_OPPONENT;
+        recording(defend::DEFENSE_OPPONENT);
+        std::cout << opponent.name;
+        recording(opponent.name);
+        std::cout << defend::PERSONAL_OPPONENT;
+        recording(defend::PERSONAL_OPPONENT);
         break;
-    case ZONE_DEFENSE:
-        std::cout << "Команда " << opponent.name << " играет зонную защиту\n";
+    case static_cast<int>(defense::ZONE_DEFENSE):
+        std::cout << defend::TEAM_OPPONENT;
+        recording(defend::TEAM_OPPONENT);
+        std::cout << opponent.name;
+        recording(opponent.name);
+        std::cout << defend::ZONE_OPPONENT;
+        recording(defend::ZONE_OPPONENT);
         break;
-    case NONE_DEFENSE:
-        std::cout << "Видимо команда " << opponent.name << " устала - у них нет защиты\n";
+    case static_cast<int>(defense::NONE_DEFENSE):
+        std::cout << defend::TEAM_OPPONENT;
+        recording(defend::TEAM_OPPONENT);
+        std::cout << opponent.name;
+        recording(opponent.name);
+        std::cout << defend::NONE_DEFENSE_OPPONENT;
+        recording(defend::NONE_DEFENSE_OPPONENT);
         break;
     }
     opponent.shot = (rand() % 4) + 1;
@@ -1992,7 +2047,7 @@ bool opponentAttack(Player& player, Opponent& opponent)
             recording(attack::ADD_DIRTY);
             opponent.score += engine::THREE_POINT;
             score(player.score, opponent.score);
-            player.teamSpirit -= MORE_POINT;
+            player.teamSpirit -= static_cast<int>(spirit::MORE_POINT);
         }
         else
         {
@@ -2009,7 +2064,7 @@ bool opponentAttack(Player& player, Opponent& opponent)
         }
         return true;
     }
-    if (opponent.shot == THREE_POINT_SHOT)
+    if (opponent.shot == static_cast<int>(shots::THREE_POINT_SHOT))
     {
         //Шанс трехочкового 40% - базовый
         std::cout << attack::THREE_POINT;
@@ -2017,14 +2072,14 @@ bool opponentAttack(Player& player, Opponent& opponent)
         probabilityHitOpponent(opponent.hit, opponent.teamSpiritOpponent);
         switch (player.defense)
         {
-        case PRESSING:
+        case static_cast<int>(defense::PRESSING):
             if (opponent.hit > engine::THREE_POINT_AND_PRESSING)
             {
                 std::cout << attack::ADD_THREE;
                 recording(attack::ADD_THREE);
                 opponent.score += engine::THREE_POINT;
                 score(player.score, opponent.score);
-                player.teamSpirit -= MORE_POINT;
+                player.teamSpirit -= static_cast<int>(spirit::MORE_POINT);
                 return true;
             }
             else
@@ -2033,14 +2088,14 @@ bool opponentAttack(Player& player, Opponent& opponent)
                 recording(attack::LOSE_SHOT);
                 return false;
             }
-        case PERSONAL_DEFENSE:
+        case static_cast<int>(defense::PERSONAL_DEFENSE):
             if (opponent.hit > engine::LAY_UP_AND_PERSONAL_DEFENSE)
             {
                 std::cout << attack::ADD_THREE;
                 recording(attack::ADD_THREE);
                 opponent.score += engine::THREE_POINT;
                 score(player.score, opponent.score);
-                player.teamSpirit -= MORE_POINT;
+                player.teamSpirit -= static_cast<int>(spirit::MORE_POINT);
                 return true;
             }
             else
@@ -2049,14 +2104,14 @@ bool opponentAttack(Player& player, Opponent& opponent)
                 recording(attack::LOSE_SHOT);
                 return false;
             }
-        case ZONE_DEFENSE:
+        case static_cast<int>(defense::ZONE_DEFENSE):
             if (opponent.hit > engine::THREE_POINT_AND_ZONE_DEFENSE)
             {
                 std::cout << attack::ADD_THREE;
                 recording(attack::ADD_THREE);
                 opponent.score += engine::THREE_POINT;
                 score(player.score, opponent.score);
-                player.teamSpirit -= MORE_POINT;
+                player.teamSpirit -= static_cast<int>(spirit::MORE_POINT);
                 return true;
             }
             else
@@ -2065,14 +2120,14 @@ bool opponentAttack(Player& player, Opponent& opponent)
                 recording(attack::LOSE_SHOT);
                 return false;
             }
-        case NONE_DEFENSE:
+        case static_cast<int>(defense::NONE_DEFENSE):
             if (opponent.hit > engine::THREE_POINT_AND_NONE_DEFENSE)
             {
                 std::cout << attack::ADD_THREE;
                 recording(attack::ADD_THREE);
                 opponent.score += engine::THREE_POINT;
                 score(player.score, opponent.score);
-                player.teamSpirit -= MORE_POINT;
+                player.teamSpirit -= static_cast<int>(spirit::MORE_POINT);
                 return true;
             }
             else
@@ -2084,7 +2139,7 @@ bool opponentAttack(Player& player, Opponent& opponent)
         }
 
     }
-    if (opponent.shot == MEDIUM_SHOT)
+    if (opponent.shot == static_cast<int>(shots::MEDIUM_SHOT))
     {
         //Шанс двухочкового 50% - базовый
         std::cout << attack::MEDIUM_SHOT;
@@ -2092,14 +2147,14 @@ bool opponentAttack(Player& player, Opponent& opponent)
         probabilityHitOpponent(opponent.hit, opponent.teamSpiritOpponent);
         switch (player.defense)
         {
-        case PRESSING:
+        case static_cast<int>(defense::PRESSING):
             if (opponent.hit > engine::MEDIUM_SHOT_AND_PRESSING)
             {
                 std::cout << attack::ADD_TWO;
                 recording(attack::ADD_TWO);
                 opponent.score += engine::TWO_POINT;
                 score(player.score, opponent.score);
-                player.teamSpirit -= MORE_POINT;
+                player.teamSpirit -= static_cast<int>(spirit::MORE_POINT);
                 return true;
             }
             else
@@ -2108,14 +2163,14 @@ bool opponentAttack(Player& player, Opponent& opponent)
                 recording(attack::LOSE_SHOT);
                 return false;
             }
-        case PERSONAL_DEFENSE:
+        case static_cast<int>(defense::PERSONAL_DEFENSE):
             if (opponent.hit > engine::MEDIUM_SHOT_AND_PERSONAL_DEFENSE)
             {
                 std::cout << attack::ADD_TWO;
                 recording(attack::ADD_TWO);
                 opponent.score += engine::TWO_POINT;
                 score(player.score, opponent.score);
-                player.teamSpirit -= MORE_POINT;
+                player.teamSpirit -= static_cast<int>(spirit::MORE_POINT);
                 return true;
             }
             else
@@ -2124,14 +2179,14 @@ bool opponentAttack(Player& player, Opponent& opponent)
                 recording(attack::LOSE_SHOT);
                 return false;
             }
-        case ZONE_DEFENSE:
+        case static_cast<int>(defense::ZONE_DEFENSE):
             if (opponent.hit > engine::MEDIUM_SHOT_AND_ZONE_DEFENSE)
             {
                 std::cout << attack::ADD_TWO;
                 recording(attack::ADD_TWO);
                 opponent.score += engine::TWO_POINT;
                 score(player.score, opponent.score);
-                player.teamSpirit -= MORE_POINT;
+                player.teamSpirit -= static_cast<int>(spirit::MORE_POINT);
                 return true;
             }
             else
@@ -2140,14 +2195,14 @@ bool opponentAttack(Player& player, Opponent& opponent)
                 recording(attack::LOSE_SHOT);
                 return false;
             }
-        case NONE_DEFENSE:
+        case static_cast<int>(defense::NONE_DEFENSE):
             if (opponent.hit > engine::MEDIUM_SHOT_AND_NONE_DEFENSE)
             {
                 std::cout << attack::ADD_TWO;
                 recording(attack::ADD_TWO);
                 opponent.score += engine::TWO_POINT;
                 score(player.score, opponent.score);
-                player.teamSpirit -= MORE_POINT;
+                player.teamSpirit -= static_cast<int>(spirit::MORE_POINT);
                 return true;
             }
             else
@@ -2158,7 +2213,7 @@ bool opponentAttack(Player& player, Opponent& opponent)
             }
         }
     }
-    if (opponent.shot == LAY_UP_SHOT)
+    if (opponent.shot == static_cast<int>(shots::LAY_UP_SHOT))
     {
         //Шанс лэй - аппа 60% - базовый
         std::cout << attack::LAY_UP;
@@ -2172,7 +2227,7 @@ bool opponentAttack(Player& player, Opponent& opponent)
         }
         switch (player.defense)
         {
-        case PRESSING:
+        case static_cast<int>(defense::PRESSING):
             if (attack::steal)
             {
                 std::cout << attack::STEAL_GOOD;
@@ -2195,7 +2250,7 @@ bool opponentAttack(Player& player, Opponent& opponent)
                 recording(attack::ADD_TWO);
                 opponent.score += engine::TWO_POINT;
                 score(player.score, opponent.score);
-                player.teamSpirit -= MORE_POINT;
+                player.teamSpirit -= static_cast<int>(spirit::MORE_POINT);
                 return true;
             }
             else
@@ -2204,7 +2259,7 @@ bool opponentAttack(Player& player, Opponent& opponent)
                 recording(attack::LOSE_SHOT);
                 return false;
             }
-        case PERSONAL_DEFENSE:
+        case static_cast<int>(defense::PERSONAL_DEFENSE):
             if (attack::steal)
             {
                 std::cout << attack::STEAL_GOOD;
@@ -2227,7 +2282,7 @@ bool opponentAttack(Player& player, Opponent& opponent)
                 recording(attack::ADD_TWO);
                 opponent.score += engine::TWO_POINT;
                 score(player.score, opponent.score);
-                player.teamSpirit -= MORE_POINT;
+                player.teamSpirit -= static_cast<int>(spirit::MORE_POINT);
                 return true;
             }
             else
@@ -2236,7 +2291,7 @@ bool opponentAttack(Player& player, Opponent& opponent)
                 recording(attack::LOSE_SHOT);
                 return false;
             }
-        case ZONE_DEFENSE:
+        case static_cast<int>(defense::ZONE_DEFENSE):
             if (attack::steal)
             {
                 std::cout << attack::STEAL_GOOD;
@@ -2259,7 +2314,7 @@ bool opponentAttack(Player& player, Opponent& opponent)
                 recording(attack::ADD_TWO);
                 opponent.score += engine::TWO_POINT;
                 score(player.score, opponent.score);
-                player.teamSpirit -= MORE_POINT;
+                player.teamSpirit -= static_cast<int>(spirit::MORE_POINT);
                 return true;
             }
             else
@@ -2268,7 +2323,7 @@ bool opponentAttack(Player& player, Opponent& opponent)
                 recording(attack::LOSE_SHOT);
                 return false;
             }
-        case NONE_DEFENSE:
+        case static_cast<int>(defense::NONE_DEFENSE):
             if (attack::steal)
             {
                 std::cout << attack::STEAL_GOOD;
@@ -2291,7 +2346,7 @@ bool opponentAttack(Player& player, Opponent& opponent)
                 recording(attack::ADD_TWO);
                 opponent.score += engine::TWO_POINT;
                 score(player.score, opponent.score);
-                player.teamSpirit -= MORE_POINT;
+                player.teamSpirit -= static_cast<int>(spirit::MORE_POINT);
                 return true;
             }
             else
@@ -2302,7 +2357,7 @@ bool opponentAttack(Player& player, Opponent& opponent)
             }
         }
     }
-    if (opponent.shot == COMBINATIONT_SHOT)
+    if (opponent.shot == static_cast<int>(shots::COMBINATIONT_SHOT))
     {
         //Шанс комбинации 55% - базовый
         std::cout << attack::COMBINATION;
@@ -2316,7 +2371,7 @@ bool opponentAttack(Player& player, Opponent& opponent)
         }
         switch (player.defense)
         {
-        case PRESSING:
+        case static_cast<int>(defense::PRESSING):
             if (attack::steal)
             {
                 std::cout << attack::STEAL_GOOD;
@@ -2339,7 +2394,7 @@ bool opponentAttack(Player& player, Opponent& opponent)
                 recording(attack::ADD_TWO);
                 opponent.score += engine::TWO_POINT;
                 score(player.score, opponent.score);
-                player.teamSpirit -= MORE_POINT;
+                player.teamSpirit -= static_cast<int>(spirit::MORE_POINT);
                 return true;
             }
             else
@@ -2348,7 +2403,7 @@ bool opponentAttack(Player& player, Opponent& opponent)
                 recording(attack::LOSE_SHOT);
                 return false;
             }
-        case PERSONAL_DEFENSE:
+        case static_cast<int>(defense::PERSONAL_DEFENSE):
             if (attack::steal)
             {
                 std::cout << attack::STEAL_GOOD;
@@ -2371,7 +2426,7 @@ bool opponentAttack(Player& player, Opponent& opponent)
                 recording(attack::ADD_TWO);
                 opponent.score += engine::TWO_POINT;
                 score(player.score, opponent.score);
-                player.teamSpirit -= MORE_POINT;
+                player.teamSpirit -= static_cast<int>(spirit::MORE_POINT);
                 return true;
             }
             else
@@ -2380,7 +2435,7 @@ bool opponentAttack(Player& player, Opponent& opponent)
                 recording(attack::LOSE_SHOT);
                 return false;
             }
-        case ZONE_DEFENSE:
+        case static_cast<int>(defense::ZONE_DEFENSE):
             if (attack::steal)
             {
                 std::cout << attack::STEAL_GOOD;
@@ -2403,7 +2458,7 @@ bool opponentAttack(Player& player, Opponent& opponent)
                 recording(attack::ADD_TWO);
                 opponent.score += engine::TWO_POINT;
                 score(player.score, opponent.score);
-                player.teamSpirit -= MORE_POINT;
+                player.teamSpirit -= static_cast<int>(spirit::MORE_POINT);
                 return true;
             }
             else
@@ -2412,7 +2467,7 @@ bool opponentAttack(Player& player, Opponent& opponent)
                 recording(attack::LOSE_SHOT);
                 return false;
             }
-        case NONE_DEFENSE:
+        case static_cast<int>(defense::NONE_DEFENSE):
             if (attack::steal)
             {
                 std::cout << attack::STEAL_GOOD;
@@ -2435,7 +2490,7 @@ bool opponentAttack(Player& player, Opponent& opponent)
                 recording(attack::ADD_TWO);
                 opponent.score += engine::TWO_POINT;
                 score(player.score, opponent.score);
-                player.teamSpirit -= MORE_POINT;
+                player.teamSpirit -= static_cast<int>(spirit::MORE_POINT);
                 return true;
             }
             else
@@ -2467,7 +2522,7 @@ void game(Player& player, Opponent& opponent)
 {
     while (engine::period < engine::PERIOD_FINISH)
     {
-        if (menu::jump == PLAYER_BALL)
+        if (menu::jump == static_cast<int>(posessionBall::PLAYER_BALL))
         {
             if (!playerAttack(player, opponent))
             {
@@ -2542,7 +2597,7 @@ void game(Player& player, Opponent& opponent)
                 engine::period += engine::ATTACK_TIME;
             }
         }
-        else if (menu::jump == OPPONENT_BALL)
+        else if (menu::jump == static_cast<int>(posessionBall::OPPONENT_BALL))
         {
             if (!opponentAttack(player, opponent))
             {
