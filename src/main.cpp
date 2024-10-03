@@ -282,7 +282,7 @@ void recording(int comment);
 void userComment(std::string userText, std::string gameText, int& userChoice);
 void userComment(std::string gameText, std::string& userChoice);
 int tournament(Player& player, Opponent& opponent);
-void startMenu();
+void startMenu(Player& player, Opponent& opponent);
 void hints();
 void author();
 void gameRulesRecord();
@@ -303,6 +303,7 @@ bool rebound();
 void game(Player& player, Opponent& opponent);
 void score(int scorePlayer, int scoreOpponent);
 void deleteName(std::vector<std::string>& namesTeamOpponent, int choiceTeamName);
+void switchDefenseOpponent(const Player& player, Opponent& opponent);
 
 int main()
 {
@@ -351,7 +352,7 @@ int main()
     }
 
     gameRulesRecord();
-    startMenu();
+    startMenu(player, opponent);
     while (menu::startGame != menu::EXIT_GAME)
     {
         if (menu::startGame == menu::TOURNAMENT)
@@ -364,29 +365,27 @@ int main()
                 std::cout << history::LOSE_TOURNAMENT;
                 recording(history::LOSE_TOURNAMENT);
                 system("pause");
-                startMenu();
+                startMenu(player, opponent);
                 break;
             case static_cast<int>(winOrLose::DRAW):
                 system("cls");
                 std::cout << history::DRAW_TOURNAMENT;
                 recording(history::DRAW_TOURNAMENT);
                 system("pause");
-                startMenu();
+                startMenu(player, opponent);
                 break;
             case static_cast<int>(winOrLose::PLAYER_WIN):
                 std::cout << history::WIN_TOURNAMENT;
                 recording(history::WIN_TOURNAMENT);
                 system("pause");
-                startMenu();
+                startMenu(player, opponent);
                 break;
             }
         }
         else if (menu::startGame == menu::ONE_GAME)
         {
             hints();
-            engine::period = engine::PERIOD_START;
-            player.score = engine::ZERO;
-            opponent.score = engine::ZERO;
+            
 
             std::cout << menu::OPPONENT_NAME_CHOICE;
             recording(menu::OPPONENT_NAME_CHOICE);
@@ -520,7 +519,7 @@ int main()
             }
             std::cout << std::endl;
             system("pause");
-            startMenu();
+            startMenu(player, opponent);
         }  
     }
 }
@@ -711,8 +710,13 @@ int tournament(Player& player, Opponent& opponent)
     return static_cast<int>(winOrLose::PLAYER_WIN);
 }
 
-void startMenu()
+void startMenu(Player& player, Opponent& opponent)
 {
+    engine::period = engine::PERIOD_START;
+    player.score = engine::ZERO;
+    opponent.score = engine::ZERO;
+    player.teamSpirit = engine::ZERO;
+    opponent.teamSpiritOpponent = engine::ZERO;
     system("cls");
     std::cout << menu::WELCOME;
     recording(menu::WELCOME);
@@ -795,7 +799,12 @@ void gameRulesRecord()
         "Делайте броски следующим образом:\n"
         "1. Дальний (трехочковый) бросок в прыжке;\n2. Средний (двухочковый) бросок в прыжке;\n3. Лэй - апп (два очка);\n4. Комбинация и бросок (два очка);\n\n"
         "На попадание влияет:\n1. Базовый процент попадания.\n2. Защита.\n3. Командный дух.\n\n"
-        "Командный дух можно, как поднять(отличной игрой и успешным решением жизненных вопросов команды).\nТак и потерять(плохой игрой или неудачними решениями).\n\n";
+        "Командный дух можно, как поднять(отличной игрой и успешным решением жизненных вопросов команды).\nТак и потерять(плохой игрой или неудачними решениями).\n"
+        "При максимальном подъеме командного духа(+10) открывается спецприем \"Рука бога\",\nкоторый гарантирует 100% попадание с трехочковой линии,\n"
+        "но он, так же, тратит все пункты командного духа.\n"
+        "При минимальном командном духе (-10) открывается спецприем \"Грязная игра\",\nкоторый с некоторой вероятностью может принести три очка,\n"
+        "но будте аккуратны, ведь есть вероятность совершить фол и соперник реализует штрафной, что даст ему одно очко.\n"
+        "\"Грязная игра\" также доступна и противнику, если он начинает проигрывать матч со значительным разрывом,\nна него действуют те же ограничения.\n\n";
     menu::rulesDefense =
         "Выберите схему следующим образом:\n"
         "1. Прессинг - эффективная защита (шанс всех бросков снижен на 10%);\n"
@@ -1348,40 +1357,8 @@ bool playerAttack(Player& player, Opponent& opponent)
     }
     attackShot(player.shot, player.teamSpirit);
 
-    switch (player.shot)
-    {
-    case static_cast<int>(shots::THREE_POINT_SHOT):
-    case static_cast<int>(shots::COMBINATIONT_SHOT):
-        if (engine::countZoneDefense == engine::SWITCH_DEFENSE)
-        {
-            opponent.defense = static_cast<int>(defense::ZONE_DEFENSE);
-            engine::countZoneDefense = engine::ZERO;
-            break;
-        }
-        engine::countZoneDefense += engine::ONE_UP;
-        engine::countPersonalDefense = engine::ZERO;
-        break;
+    
 
-    case static_cast<int>(shots::MEDIUM_SHOT):
-    case static_cast<int>(shots::LAY_UP_SHOT):
-        if (engine::countPersonalDefense == engine::SWITCH_DEFENSE)
-        {
-            opponent.defense = static_cast<int>(defense::PERSONAL_DEFENSE);
-            engine::countPersonalDefense = engine::ZERO;
-            break;
-        }
-        engine::countPersonalDefense += engine::ONE_UP;
-        engine::countZoneDefense = engine::ZERO;
-        break;
-    }
-    if (player.score - opponent.score >= opponent.DIRTY_DEEP)
-    {
-        opponent.defense = static_cast<int>(defense::PRESSING);
-    }
-    else if (opponent.score - player.score >= opponent.DIRTY_DEEP)
-    {
-        opponent.defense = static_cast<int>(defense::NONE_DEFENSE);
-    }
 
     std::cout << "\n";
     while (player.shot == static_cast<int>(defense::CHOICE_DEFENSE))
@@ -2526,6 +2503,7 @@ void game(Player& player, Opponent& opponent)
         {
             if (!playerAttack(player, opponent))
             {
+                switchDefenseOpponent(player, opponent);
                 if (attack::steal)
                 {
                     attack::steal = false;
@@ -2560,6 +2538,7 @@ void game(Player& player, Opponent& opponent)
             }
             else
             {
+                switchDefenseOpponent(player, opponent);
                 engine::period += engine::ATTACK_TIME;
             }
             if (!opponentAttack(player, opponent))
@@ -2639,6 +2618,7 @@ void game(Player& player, Opponent& opponent)
             }
             if (!playerAttack(player, opponent))
             {
+                switchDefenseOpponent(player, opponent);
                 if (attack::steal)
                 {
                     attack::steal = false;
@@ -2669,6 +2649,7 @@ void game(Player& player, Opponent& opponent)
             }
             else
             {
+                switchDefenseOpponent(player, opponent);
                 engine::period += engine::ATTACK_TIME;
             }
         }
@@ -2692,4 +2673,42 @@ void deleteName(std::vector<std::string>& namesTeamOpponent, int choiceTeamName)
     std::vector<std::string>::iterator team = namesTeamOpponent.begin();
     namesTeamOpponent.erase(team + choiceTeamName);
     engine::allTeamTournament--;
+}
+
+void switchDefenseOpponent(const Player& player, Opponent& opponent)
+{
+    if (player.score - opponent.score >= opponent.DIRTY_DEEP)
+    {
+        opponent.defense = static_cast<int>(defense::PRESSING);
+    }
+    else if (opponent.score - player.score >= opponent.DIRTY_DEEP)
+    {
+        opponent.defense = static_cast<int>(defense::NONE_DEFENSE);
+    }
+    switch (player.shot)
+    {
+    case static_cast<int>(shots::THREE_POINT_SHOT):
+    case static_cast<int>(shots::COMBINATIONT_SHOT):
+        if (engine::countZoneDefense == engine::SWITCH_DEFENSE)
+        {
+            opponent.defense = static_cast<int>(defense::ZONE_DEFENSE);
+            engine::countZoneDefense = engine::ZERO;
+            break;
+        }
+        engine::countZoneDefense += engine::ONE_UP;
+        engine::countPersonalDefense = engine::ZERO;
+        break;
+
+    case static_cast<int>(shots::MEDIUM_SHOT):
+    case static_cast<int>(shots::LAY_UP_SHOT):
+        if (engine::countPersonalDefense == engine::SWITCH_DEFENSE)
+        {
+            opponent.defense = static_cast<int>(defense::PERSONAL_DEFENSE);
+            engine::countPersonalDefense = engine::ZERO;
+            break;
+        }
+        engine::countPersonalDefense += engine::ONE_UP;
+        engine::countZoneDefense = engine::ZERO;
+        break;
+    }
 }
