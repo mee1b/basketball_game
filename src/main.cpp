@@ -127,7 +127,7 @@ namespace menu
     const std::string WELCOME = "Добро пожаловать в игру \"Баскетбол\"\n";
     const std::string START_MENU = "1. Правила игры.\n2. Начать игру.\n3. Режим турнира.\n4. Об авторе.\n5. Выйти из игры.\n\nДля продолжения выберете действие: ";
     const std::string CHOICE_HINT = "Выберите режим подсказок:\n1.Опытный(без подсказок).\n2.Любитель(подсказки появляются по нажатию клавиши)\n3.Новичок(подсказки выводятся всегда)\n\nВаш выбор: ";
-    const std::string AUTHOR = "Студия разработки игр Dialas представляет.\nАвтор: Медведенко Егор(ник: mee1b).\nВерсия: 1.1.0.\n\n";
+    const std::string AUTHOR = "Студия разработки игр Dialas представляет.\nАвтор: Медведенко Егор(ник: mee1b).\nВерсия: 1.1.1.\n\n";
     const std::string TABLO = "Счет: ";
 }
 
@@ -161,6 +161,7 @@ namespace engine
     const int SWITCH_DEFENSE{ 1 };
     const int ZERO{ 0 };
     const int ONE_UP{ 1 };
+    const int ALL_TOURNAMENT_TEAM{ 8 };
     int allTeamTournament{ 8 };
     int probalityJump{};
     int probalityRebound{};
@@ -230,12 +231,17 @@ namespace defend
     const std::string QUESTION_DEFENSE = "Какой будет наша защита? ";
     const std::string UNKNOW_TACTICS = "На тренировках мы не разбирали эти схемы, капитан!\nДавай сыграем то, что мы уже знаем!\n";
     const std::string REBOUND_IN_DEFENSE = "\nПодбор в защите за командой: ";
-    const std::string DEFENSE_OPPONENT = "Защита команды ";
+    const std::string DEFENSE_TACTICS = "Защита команды ";
     const std::string PRESSING_OPPONENT = " - прессинг\n";
     const std::string PERSONAL_OPPONENT = " - личная опека\n";
     const std::string TEAM_OPPONENT = "Команда ";
     const std::string ZONE_OPPONENT = " играет зонную защиту\n";
     const std::string NONE_DEFENSE_OPPONENT = " расслабилась - у них нет защиты\n";
+    const std::string PLAYER_FATIGUE = " устала от прессинга, сейчас у них нет защиты!\n";
+    const std::string PLAYER_RELAX = " на пике сил, может стоит задуматься о игре в защите?!\n";
+    const std::string RELAX = "\nКапитан, команда сильно устала в прессинге!\nНужен отдых!\n\n";
+    int fatigue = 0;
+    const int SEVERE_FATIGUE = 2;
 }
 
 struct Situation
@@ -304,6 +310,7 @@ void game(Player& player, Opponent& opponent);
 void score(int scorePlayer, int scoreOpponent);
 void deleteName(std::vector<std::string>& namesTeamOpponent, int choiceTeamName);
 void switchDefenseOpponent(const Player& player, Opponent& opponent);
+void showDefense(int defense, std::string name);
 
 int main()
 {
@@ -578,6 +585,7 @@ void userComment(std::string gameText, std::string& userChoice)
 int tournament(Player& player, Opponent& opponent)
 {
     int gamesDraw{ 0 };
+    defend::fatigue = 0;
     std::vector<std::string> namesTeamOpponent{ "Колледж Иллинойс", "Колледж Вашингтона", "Колледж Аляски", "Колледж Огайо", "Далласский колледж", "Колледж Техаса", "Колледж Минесоты", "Колледж Аризоны"};
 
     int choiceTeamName{};
@@ -586,7 +594,6 @@ int tournament(Player& player, Opponent& opponent)
     recording(player.name);
     while (engine::howGame <= engine::ALL_TOURNAMENT_GAME)
     {
-        menu::jump = 0;
         player.score = 0;
         opponent.score = 0;
         engine::period = engine::PERIOD_START;
@@ -712,6 +719,8 @@ int tournament(Player& player, Opponent& opponent)
 
 void startMenu(Player& player, Opponent& opponent)
 {
+    engine::allTeamTournament = engine::ALL_TOURNAMENT_TEAM;
+    engine::howGame = engine::ONE_UP;
     engine::period = engine::PERIOD_START;
     player.score = engine::ZERO;
     opponent.score = engine::ZERO;
@@ -798,14 +807,15 @@ void gameRulesRecord()
     menu::rulesShot =
         "Делайте броски следующим образом:\n"
         "1. Дальний (трехочковый) бросок в прыжке;\n2. Средний (двухочковый) бросок в прыжке;\n3. Лэй - апп (два очка);\n4. Комбинация и бросок (два очка);\n\n"
-        "На попадание влияет:\n1. Базовый процент попадания.\n2. Защита.\n3. Командный дух.\n\n"
+        "На попадание влияет:\n1. Защита.\n2. Командный дух.\n\n"
         "Командный дух можно, как поднять(отличной игрой и успешным решением жизненных вопросов команды).\nТак и потерять(плохой игрой или неудачними решениями).\n"
         "При максимальном подъеме командного духа(+10) открывается спецприем \"Рука бога\",\nкоторый гарантирует 100% попадание с трехочковой линии,\n"
         "но он, так же, тратит все пункты командного духа.\n"
         "При минимальном командном духе (-10) открывается спецприем \"Грязная игра\",\nкоторый с некоторой вероятностью может принести три очка,\n"
-        "но будте аккуратны, ведь есть вероятность совершить фол и соперник реализует штрафной, что даст ему одно очко.\n"
+        "но будте аккуратны, ведь есть вероятность того, что судья заметит фол и соперник реализует штрафной,\nчто даст ему одно очко.\n"
         "\"Грязная игра\" также доступна и противнику, если он начинает проигрывать матч со значительным разрывом,\nна него действуют те же ограничения.\n\n";
     menu::rulesDefense =
+        "Немаловажный момент игры - защита. Выбирай ее с умом, чтобы реализовать все свои задумки и тактики.\nВнимательно следи за тем, какую защиту использует противник!\n"
         "Выберите схему следующим образом:\n"
         "1. Прессинг - эффективная защита (шанс всех бросков снижен на 10%);\n"
         "2. Личная опека - отличная защита от средних и ближних бросков (шанс удачного среднего броска и лэй - аппа -20%),\n"
@@ -1184,6 +1194,11 @@ void situationThree(int& teamSpirit)
 
 void choiceDefense(int& defense)
 {
+    if (defend::fatigue > engine::ZERO && defense == static_cast<int>(defense::NONE_DEFENSE))
+    {
+        std::cout << defend::RELAX;
+        return;
+    }
     if (menu::hint == static_cast<int>(playerHints::EXPERT))
     {
         getline(std::cin, engine::userText);
@@ -1332,6 +1347,24 @@ void attackShot(int& shot, int teamSpirit)
 
 bool playerAttack(Player& player, Opponent& opponent)
 {
+    if (player.defense == static_cast<int>(defense::NONE_DEFENSE))
+    {
+        defend::fatigue--;
+        if (defend::fatigue < engine::ZERO)
+        {
+            defend::fatigue = engine::ZERO;
+        }
+    }
+    if (defend::fatigue == defend::SEVERE_FATIGUE)
+    {
+        player.defense = static_cast<int>(defense::NONE_DEFENSE);
+    }
+    if (player.defense == static_cast<int>(defense::PRESSING))
+    {
+        defend::fatigue++;
+    }
+    showDefense(player.defense, player.name);
+
     if (player.teamSpirit >= static_cast<int>(spirit::MAX_SPIRIT))
     {
         player.teamSpirit = static_cast<int>(spirit::MAX_SPIRIT);
@@ -1371,6 +1404,8 @@ bool playerAttack(Player& player, Opponent& opponent)
             attackShot(player.shot, player.teamSpirit);
         }
     }
+
+
     if (player.shot == static_cast<int>(shots::THREE_POINT_SHOT))
     {
         //Шанс трехочкового 40% - базовый
@@ -1975,41 +2010,8 @@ bool playerAttack(Player& player, Opponent& opponent)
 
 bool opponentAttack(Player& player, Opponent& opponent)
 {
-    switch (opponent.defense)
-    {
-    case static_cast<int>(defense::PRESSING):
-        std::cout << defend::DEFENSE_OPPONENT;
-        recording(defend::DEFENSE_OPPONENT);
-        std::cout << opponent.name;
-        recording(opponent.name);
-        std::cout << defend::PRESSING_OPPONENT;
-        recording(defend::PRESSING_OPPONENT);
-        break;
-    case static_cast<int>(defense::PERSONAL_DEFENSE):
-        std::cout << defend::DEFENSE_OPPONENT;
-        recording(defend::DEFENSE_OPPONENT);
-        std::cout << opponent.name;
-        recording(opponent.name);
-        std::cout << defend::PERSONAL_OPPONENT;
-        recording(defend::PERSONAL_OPPONENT);
-        break;
-    case static_cast<int>(defense::ZONE_DEFENSE):
-        std::cout << defend::TEAM_OPPONENT;
-        recording(defend::TEAM_OPPONENT);
-        std::cout << opponent.name;
-        recording(opponent.name);
-        std::cout << defend::ZONE_OPPONENT;
-        recording(defend::ZONE_OPPONENT);
-        break;
-    case static_cast<int>(defense::NONE_DEFENSE):
-        std::cout << defend::TEAM_OPPONENT;
-        recording(defend::TEAM_OPPONENT);
-        std::cout << opponent.name;
-        recording(opponent.name);
-        std::cout << defend::NONE_DEFENSE_OPPONENT;
-        recording(defend::NONE_DEFENSE_OPPONENT);
-        break;
-    }
+    showDefense(opponent.defense, opponent.name);
+
     opponent.shot = (rand() % 4) + 1;
     std::cout << opponent.name;
     recording(opponent.name);
@@ -2710,5 +2712,67 @@ void switchDefenseOpponent(const Player& player, Opponent& opponent)
         engine::countPersonalDefense += engine::ONE_UP;
         engine::countZoneDefense = engine::ZERO;
         break;
+    }
+}
+
+void showDefense(int defense, std::string name)
+{
+    switch (defense)
+    {
+    case static_cast<int>(defense::PRESSING):
+        std::cout << defend::DEFENSE_TACTICS;
+        recording(defend::DEFENSE_TACTICS);
+        std::cout << name;
+        recording(name);
+        std::cout << defend::PRESSING_OPPONENT;
+        recording(defend::PRESSING_OPPONENT);
+        break;
+    case static_cast<int>(defense::PERSONAL_DEFENSE):
+        std::cout << defend::DEFENSE_TACTICS;
+        recording(defend::DEFENSE_TACTICS);
+        std::cout << name;
+        recording(name);
+        std::cout << defend::PERSONAL_OPPONENT;
+        recording(defend::PERSONAL_OPPONENT);
+        break;
+    case static_cast<int>(defense::ZONE_DEFENSE):
+        std::cout << defend::TEAM_OPPONENT;
+        recording(defend::TEAM_OPPONENT);
+        std::cout << name;
+        recording(name);
+        std::cout << defend::ZONE_OPPONENT;
+        recording(defend::ZONE_OPPONENT);
+        break;
+    case static_cast<int>(defense::NONE_DEFENSE):
+        if (name == history::PLAYER_TEAM_NAME && defend::fatigue > engine::ZERO)
+        {
+            std::cout << defend::TEAM_OPPONENT;
+            recording(defend::TEAM_OPPONENT);
+            std::cout << name;
+            recording(name);
+            std::cout << defend::PLAYER_FATIGUE;
+            recording(defend::PLAYER_FATIGUE);
+            break;
+        }
+        else if (name == history::PLAYER_TEAM_NAME)
+        {
+            std::cout << defend::TEAM_OPPONENT;
+            recording(defend::TEAM_OPPONENT);
+            std::cout << name;
+            recording(name);
+            std::cout << defend::PLAYER_RELAX;
+            recording(defend::PLAYER_RELAX);
+            break;
+        }
+        else 
+        {
+            std::cout << defend::TEAM_OPPONENT;
+            recording(defend::TEAM_OPPONENT);
+            std::cout << name;
+            recording(name);
+            std::cout << defend::NONE_DEFENSE_OPPONENT;
+            recording(defend::NONE_DEFENSE_OPPONENT);
+            break;
+        }
     }
 }
