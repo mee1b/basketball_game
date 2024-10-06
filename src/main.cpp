@@ -114,7 +114,6 @@ namespace menu
     std::string rules{};
     std::string rulesShot{};
     std::string rulesDefense{};
-    const std::string CHOICE_MENU = "Выберите варинат запуска игры:\n1.Тестовый режим.\n2.Режим пользователя.\nВаш выбор: ";
     const std::string REPEAT = "Не понимаю!\nВаш выбор: ";
     const std::string OPPONENT_NAME_CHOICE = "Нажмите клавишу Enter, для стандартного названия противника или\nВведите название команды противника: ";
     const std::string START_DEFENSE = "Вашей стартовой защитой будет...";
@@ -162,6 +161,8 @@ namespace engine
     const int ZERO{ 0 };
     const int ONE_UP{ 1 };
     const int ALL_TOURNAMENT_TEAM{ 8 };
+    const int HIGH_RAND{ 100 };
+    const int FOUR{ 4 };
     int allTeamTournament{ 8 };
     int probalityJump{};
     int probalityRebound{};
@@ -297,6 +298,7 @@ void situationOne(int& teamSpirit);
 void situationTwo(int& teamSpirit);
 void situationThree(int& teamSpitit);
 void choiceDefense(int& defense);
+void choiceDefenseOpponent(int& defense);
 void jumpBall(int& jump);
 void probabilityHitPlayer(int& hit, int teamSpirit);
 void probabilityHitOpponent(int& hit, int teamSpiritOpponent);
@@ -319,44 +321,10 @@ int main()
     srand(static_cast<unsigned int>(time(0)));
     record.open(engine::USER_HISTORY_FILE);
     record.close();
-    record.open(engine::USER_HISTORY_FILE);
-    record.close();
 
 
     Opponent opponent{};
     Player player{};
-
-    std::cout << menu::CHOICE_MENU;
-    recording(menu::CHOICE_MENU);
-    getline(std::cin, engine::userText);
-    userComment(engine::userText, menu::CHOICE_MENU, engine::userChoice);
-    recording(engine::userChoice);
-    while (engine::userChoice < static_cast<int>(testing::TEST) || engine::userChoice > static_cast<int>(testing::UNTEST))
-    {
-        std::cout << menu::REPEAT;
-        recording(menu::REPEAT);
-        getline(std::cin, engine::userText);
-        userComment(engine::userText, menu::CHOICE_MENU, engine::userChoice);
-        recording(menu::REPEAT);
-    }
-    switch (engine::userChoice)
-    {
-    case static_cast<int>(testing::TEST):
-        test::testingEnabled = true;
-        break;
-    case static_cast<int>(testing::UNTEST):
-        test::testingEnabled = false;
-        break;
-    }
-    system("cls");
-
-    if (test::testingEnabled)
-    {
-        std::cout << test::TESTING_ENABLED;
-        recording(test::TESTING_ENABLED);
-        Sleep(1500);
-        system("cls");
-    }
 
     gameRulesRecord();
     startMenu(player, opponent);
@@ -454,7 +422,7 @@ int main()
             choiceDefense(player.defense);
             recording(player.defense);
             player.name = history::PLAYER_TEAM_NAME;
-            opponent.defense = player.defense;
+            choiceDefenseOpponent(opponent.defense);
             std::cout << "\n";
 
             system("cls");
@@ -638,7 +606,7 @@ int tournament(Player& player, Opponent& opponent)
         recording(menu::START_DEFENSE);
         choiceDefense(player.defense);
         recording(player.defense);
-        opponent.defense = player.defense;
+        choiceDefenseOpponent(opponent.defense);
         std::cout << "\n";
 
         system("cls");
@@ -803,7 +771,7 @@ void gameRulesRecord()
     menu::rules =
         "Это баскетбольный клуб колледжа Алабама. "
         "Ты будешь капитаном и плеймейкером нашей команды.\n"
-        "Игра длится 2 тайма по 4 минуты. Одна атака длится 24 секунды.\n\n";
+        "Игра длится 2 тайма по 8 минуты. Одна атака длится 24 секунды.\n\n";
     menu::rulesShot =
         "Делайте броски следующим образом:\n"
         "1. Дальний (трехочковый) бросок в прыжке;\n2. Средний (двухочковый) бросок в прыжке;\n3. Лэй - апп (два очка);\n4. Комбинация и бросок (два очка);\n\n"
@@ -885,7 +853,7 @@ void situationOne(int& teamSpirit)
         recording(situation.playerChoice);
     }
     
-    situation.probalityVictory = rand() % 100 + 1;
+    situation.probalityVictory = rand() % engine::HIGH_RAND + engine::ONE_UP;
 
     if (situation.playerChoice == situation.ACTION && situation.probalityVictory >= history::PROBALITY_WIN)
     {
@@ -1001,7 +969,7 @@ void situationTwo(int& teamSpirit)
         recording(situation.playerChoice);
     }
 
-    situation.probalityVictory = rand() % 100 + 1;
+    situation.probalityVictory = rand() % engine::HIGH_RAND + engine::ONE_UP;
 
     if (situation.playerChoice == situation.ACTION && situation.probalityVictory >= history::PROBALITY_WIN)
     {
@@ -1118,7 +1086,7 @@ void situationThree(int& teamSpirit)
         recording(situation.playerChoice);
     }
 
-    situation.probalityVictory = rand() % 100 + 1;
+    situation.probalityVictory = rand() % engine::HIGH_RAND + engine::ONE_UP;
 
     if (situation.playerChoice == situation.ACTION && situation.probalityVictory >= history::PROBALITY_WIN)
     {
@@ -1242,9 +1210,22 @@ void choiceDefense(int& defense)
     }
 }
 
+void choiceDefenseOpponent(int& defense)
+{
+    int choiceDefense = rand() % engine::HIGH_RAND;
+    if (choiceDefense >= history::PROBALITY_WIN)
+    {
+        defense = static_cast<int>(defense::PERSONAL_DEFENSE);
+    }
+    else
+    {
+        defense = static_cast<int>(defense::ZONE_DEFENSE);
+    }
+}
+
 void jumpBall(int& jump)
 {
-    engine::probalityJump = rand() % 100 + 1;
+    engine::probalityJump = rand() % engine::HIGH_RAND + engine::ONE_UP;
     if (engine::probalityJump > static_cast<int>(posessionBall::PROCENT_BALL_PLAYER))
     {
         jump = static_cast<int>(posessionBall::PLAYER_BALL);
@@ -1257,17 +1238,17 @@ void jumpBall(int& jump)
 
 void probabilityHitPlayer(int& hit, int teamSpirit)
 {
-    hit = (rand() % 100 + 1) + teamSpirit;
+    hit = (rand() % engine::HIGH_RAND + engine::ONE_UP) + teamSpirit;
 }
 
 void probabilityHitOpponent(int& hit, int teamSpiritOpponent)
 {
-    hit = (rand() % 100) + 1 + teamSpiritOpponent;
+    hit = rand() % engine::HIGH_RAND + engine::ONE_UP + teamSpiritOpponent;
 }
 
 void probalityStealOpponentOnPlayer(bool& steal)
 {
-    int probalitySteal = (rand() % 100) + 1;
+    int probalitySteal = rand() % engine::HIGH_RAND + engine::ONE_UP;
     if (probalitySteal > engine::GOOD_STEAL_OPPONENT_ON_PLAYER)
     {
         steal = true;
@@ -1276,7 +1257,7 @@ void probalityStealOpponentOnPlayer(bool& steal)
 
 void probalityBlockOpponentOnPlayer(bool& block)
 {
-    int probalityBlock = (rand() % 100) + 1;
+    int probalityBlock = rand() % engine::HIGH_RAND + engine::ONE_UP;
     if (probalityBlock > engine::GOOD_BLOCK_OPPONENT_ON_PLAYER)
     {
         block = true;
@@ -1963,7 +1944,7 @@ bool playerAttack(Player& player, Opponent& opponent)
             std::cout << test::TEST_DIRTY;
             recording(test::TEST_DIRTY);
         }
-        player.probalityDirtyGame = rand() % 100 + 1;
+        player.probalityDirtyGame = rand() % engine::HIGH_RAND + engine::ONE_UP;
         if (player.probalityDirtyGame >= player.PROCENT_DIRTY_GAME)
         {
             std::cout << attack::ADD_DIRTY;
@@ -2012,12 +1993,12 @@ bool opponentAttack(Player& player, Opponent& opponent)
 {
     showDefense(opponent.defense, opponent.name);
 
-    opponent.shot = (rand() % 4) + 1;
+    opponent.shot = rand() % engine::FOUR + engine::ONE_UP;
     std::cout << opponent.name;
     recording(opponent.name);
     std::cout << attack::IN_ATTACK;
     recording(attack::IN_ATTACK);
-    opponent.probalityDirtyGame = rand() % 100 + 1;
+    opponent.probalityDirtyGame = rand() % engine::HIGH_RAND + engine::ONE_UP;
     if ((player.score - opponent.score >= opponent.DIRTY_DEEP) && opponent.probalityDirtyGame > opponent.PROCENT_DIRTY_GAME)
     {
         if (opponent.probalityDirtyGame >= opponent.PROCENT_DIRTY_GAME)
@@ -2486,7 +2467,7 @@ bool opponentAttack(Player& player, Opponent& opponent)
 
 bool rebound()
 {
-    engine::probalityRebound = rand() % 100 + 1;
+    engine::probalityRebound = rand() % engine::HIGH_RAND + engine::ONE_UP;
     if (engine::probalityRebound > engine::PROCENT_REBOUND)
     {
         return true;
