@@ -114,9 +114,9 @@ namespace menu
     std::string rules{};
     std::string rulesShot{};
     std::string rulesDefense{};
-    const std::string REPEAT = "Не понимаю!\nВаш выбор: ";
+    const std::string REPEAT = "Не понимаю!\nТвой выбор: ";
     const std::string OPPONENT_NAME_CHOICE = "Нажмите клавишу Enter, для стандартного названия противника или\nВведите название команды противника: ";
-    const std::string START_DEFENSE = "Вашей стартовой защитой будет...";
+    const std::string START_DEFENSE = "Твоей стартовой защитой будет...";
     const std::string WIN_BALL_JUMP = "Судья подкидывает мяч вверх в центральном круге и...\nВбрасывание выигрывает команда: ";
     const std::string TIMEOUT = "\nЗвучит свисток, сейчас команды уйдут на перерыв!\nУслышимся после небольшой паузы!\n\n";
     const std::string SECOND_TIME = "Начинается второй тайм! ПОЕХАЛИ!!!\n\n";
@@ -125,8 +125,8 @@ namespace menu
     const std::string DRAW = "Сегодня победитель не выявлен, но в следующий раз победит сильнейший!\n\n";
     const std::string WELCOME = "Добро пожаловать в игру \"Баскетбол\"\n";
     const std::string START_MENU = "1. Правила игры.\n2. Начать игру.\n3. Режим турнира.\n4. Об авторе.\n5. Выйти из игры.\n\nДля продолжения выберете действие: ";
-    const std::string CHOICE_HINT = "Выберите режим подсказок:\n1.Опытный(без подсказок).\n2.Любитель(подсказки появляются по нажатию клавиши)\n3.Новичок(подсказки выводятся всегда)\n\nВаш выбор: ";
-    const std::string AUTHOR = "Студия разработки игр Dialas представляет.\nАвтор: Медведенко Егор(ник: mee1b).\nВерсия: 1.2.0.\n\n";
+    const std::string CHOICE_HINT = "Выберите режим подсказок:\n1.Опытный(без подсказок).\n2.Любитель(подсказки появляются по нажатию клавиши)\n3.Новичок(подсказки выводятся всегда)\n\nТвой выбор: ";
+    const std::string AUTHOR = "Студия разработки игр Dialas представляет.\nАвтор: Медведенко Егор(ник: mee1b).\nВерсия: 1.2.1.\n\n";
     const std::string TABLO = "Счет: ";
 }
 
@@ -186,7 +186,7 @@ namespace history
     const int ADD_SPIRIT_VICTORY{ 10 };
     const int REM_SPIRIT_FAIL{ -10 };
     const int NONE_RISC_SPIRIT{ -5 };
-    const std::string YOUR_TEAM_SPIRIT = "\nВаш командный дух равен ";
+    const std::string YOUR_TEAM_SPIRIT = "\nКомандный дух равен ";
     const std::string STANDART_OPPONENT_NAME = "Колледж Оклахомы";
     const std::string PLAYER_TEAM_NAME = "Колледж Алабамы";
     const std::string LOSE_TOURNAMENT = "К сожалению, ты проиграл турнир.\nНо не вешай нос! Этот турнир не последний!\nУдачи в следующий раз!";
@@ -200,11 +200,11 @@ namespace history
 namespace attack
 {
     const std::string SHOT_CHOICE = "Капитан! Какой бросок делаем в этой атаке? ";
-    const std::string SHOT_CHOICE_AND_HINT = "Капитан! Какой бросок делаем в этой атаке?(чтобы посмотреть виды бросков нажмите 5): ";
+    const std::string SHOT_CHOICE_AND_HINT = "Капитан! Какой бросок делаем в этой атаке?(чтобы посмотреть виды бросков нажми 5): ";
     const std::string SUPERPOWER_HINT = "Если командных дух равен -10 или меньше:\n6.Грязная игра(три очка, плюс 10 к командному духу).\nЕсли командный дух равен 10 или больше:\n7.Рука бога(три очка, плюс 10 к командному духу).\n\n";
     const std::string UNKNOW_TACTICS = "На тренировках мы не разбирали такие броски, капитан!\nДавай сыграем то, что мы уже знаем!\n";
-    const std::string OPEN_DIRTY = "6. Ваш командный дух падает, открыт прием \"Грязная игра\".\n";
-    const std::string OPEN_HAND = "7. Ваш командный дух на подъёме, открыт прием \"Рука бога\".\n";
+    const std::string OPEN_DIRTY = "6.Командный дух падает, открыт прием \"Грязная игра\".\n";
+    const std::string OPEN_HAND = "7.Командный дух на подъёме, открыт прием \"Рука бога\".\n";
     const std::string THREE_POINT = "Трехочковый бросок!!!\n";
     const std::string ADD_THREE = "Три очка в корзине!!!\n";
     const std::string LOSE_SHOT = "Промах! Мяч в воздухе, кто же им завладеет?\n";
@@ -228,7 +228,7 @@ namespace attack
 
 namespace defend
 {
-    const std::string SHOW_HINT = "(Чтобы посмотреть схемы защиты нажмите 5.)";
+    const std::string SHOW_HINT = "(Чтобы посмотреть схемы защиты нажми 5.)";
     const std::string QUESTION_DEFENSE = "Какой будет наша защита? ";
     const std::string UNKNOW_TACTICS = "На тренировках мы не разбирали эти схемы, капитан!\nДавай сыграем то, что мы уже знаем!\n";
     const std::string REBOUND_IN_DEFENSE = "\nПодбор в защите за командой: ";
