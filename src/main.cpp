@@ -126,7 +126,7 @@ namespace menu
     const std::string WELCOME = "Добро пожаловать в игру \"Баскетбол\"\n";
     const std::string START_MENU = "1. Правила игры.\n2. Начать игру.\n3. Режим турнира.\n4. Об авторе.\n5. Выйти из игры.\n\nДля продолжения выберете действие: ";
     const std::string CHOICE_HINT = "Выберите режим подсказок:\n1.Опытный(без подсказок).\n2.Любитель(подсказки появляются по нажатию клавиши)\n3.Новичок(подсказки выводятся всегда)\n\nВаш выбор: ";
-    const std::string AUTHOR = "Студия разработки игр Dialas представляет.\nАвтор: Медведенко Егор(ник: mee1b).\nВерсия: 1.1.1.\n\n";
+    const std::string AUTHOR = "Студия разработки игр Dialas представляет.\nАвтор: Медведенко Егор(ник: mee1b).\nВерсия: 1.2.0.\n\n";
     const std::string TABLO = "Счет: ";
 }
 
@@ -776,22 +776,24 @@ void gameRulesRecord()
         "Делайте броски следующим образом:\n"
         "1. Дальний (трехочковый) бросок в прыжке;\n2. Средний (двухочковый) бросок в прыжке;\n3. Лэй - апп (два очка);\n4. Комбинация и бросок (два очка);\n\n"
         "На попадание влияет:\n1. Защита.\n2. Командный дух.\n\n"
-        "Командный дух можно, как поднять(отличной игрой и успешным решением жизненных вопросов команды).\nТак и потерять(плохой игрой или неудачними решениями).\n"
+        "Командный дух можно, как поднять(отличной игрой и успешным решением жизненных вопросов команды).\nТак и потерять(плохой игрой или неудачными решениями).\n"
         "При максимальном подъеме командного духа(+10) открывается спецприем \"Рука бога\",\nкоторый гарантирует 100% попадание с трехочковой линии,\n"
         "но он, так же, тратит все пункты командного духа.\n"
         "При минимальном командном духе (-10) открывается спецприем \"Грязная игра\",\nкоторый с некоторой вероятностью может принести три очка,\n"
-        "но будте аккуратны, ведь есть вероятность того, что судья заметит фол и соперник реализует штрафной,\nчто даст ему одно очко.\n"
+        "но будь аккуратен, ведь есть вероятность того, что судья заметит фол и соперник реализует штрафной,\nчто даст ему одно очко.\n"
         "\"Грязная игра\" также доступна и противнику, если он начинает проигрывать матч со значительным разрывом,\nна него действуют те же ограничения.\n\n";
     menu::rulesDefense =
         "Немаловажный момент игры - защита. Выбирай ее с умом, чтобы реализовать все свои задумки и тактики.\nВнимательно следи за тем, какую защиту использует противник!\n"
         "Выберите схему следующим образом:\n"
-        "1. Прессинг - эффективная защита (шанс всех бросков снижен на 10%);\n"
+        "1. Прессинг - эффективная защита (шанс всех бросков снижен на 10%), но будь бдителен, ведь после двух защит в прессинге команда устает\n"
+        "и следующие две атаки соперника, команда будет в состоянии \"Нет защиты\", чтобы восстановить силы!\n"
         "2. Личная опека - отличная защита от средних и ближних бросков (шанс удачного среднего броска и лэй - аппа -20%),\n"
         "но открывается огромный простор для дальних бросков и комбинаций (шанс удачного дальнего броска и комбинаций + 10 %);\n"
         "3. Зонная защита - отличная защита от дальних бросков и комбинаций (шанс удачного дальнего броска и комбинации -20%),\n"
         "но открывается огромный простор для лэй - аппов и средних бросков (шанс удачного лэй - аппа и средних бросков + 10%);\n"
         "4. Нет защиты - команда отдыхает в защите (повышается шанс удачной реализации всех бросков +10%);\n"
-        "Противник будет менять свою защиту в зависимости от бросков, которые ты делаешь!\n";
+        "Противник будет менять свою защиту в зависимости от бросков, которые ты делаешь!\n"
+        "Во время атаки отображается защита противника, а при атаке противника отображается защита игрока.\n"
         "Чтобы изменить защиту, просто введите 0 в качестве следующего броска.\n\n";
 }
 
@@ -1162,7 +1164,7 @@ void situationThree(int& teamSpirit)
 
 void choiceDefense(int& defense)
 {
-    if (defend::fatigue > engine::ZERO && defense == static_cast<int>(defense::NONE_DEFENSE))
+    if ((defend::fatigue > engine::ZERO && defense == static_cast<int>(defense::NONE_DEFENSE)) || (defense == static_cast<int>(defense::PRESSING) && defend::fatigue == defend::SEVERE_FATIGUE))
     {
         std::cout << defend::RELAX;
         return;
@@ -1328,23 +1330,7 @@ void attackShot(int& shot, int teamSpirit)
 
 bool playerAttack(Player& player, Opponent& opponent)
 {
-    if (player.defense == static_cast<int>(defense::NONE_DEFENSE))
-    {
-        defend::fatigue--;
-        if (defend::fatigue < engine::ZERO)
-        {
-            defend::fatigue = engine::ZERO;
-        }
-    }
-    if (defend::fatigue == defend::SEVERE_FATIGUE)
-    {
-        player.defense = static_cast<int>(defense::NONE_DEFENSE);
-    }
-    if (player.defense == static_cast<int>(defense::PRESSING))
-    {
-        defend::fatigue++;
-    }
-    showDefense(player.defense, player.name);
+    showDefense(opponent.defense, opponent.name);
 
     if (player.teamSpirit >= static_cast<int>(spirit::MAX_SPIRIT))
     {
@@ -1991,7 +1977,25 @@ bool playerAttack(Player& player, Opponent& opponent)
 
 bool opponentAttack(Player& player, Opponent& opponent)
 {
-    showDefense(opponent.defense, opponent.name);
+    if (player.defense == static_cast<int>(defense::NONE_DEFENSE))
+    {
+        defend::fatigue--;
+        if (defend::fatigue < engine::ZERO)
+        {
+            defend::fatigue = engine::ZERO;
+        }
+    }
+    if (defend::fatigue == defend::SEVERE_FATIGUE)
+    {
+        player.defense = static_cast<int>(defense::NONE_DEFENSE);
+        std::cout << defend::RELAX;
+    }
+    if (player.defense == static_cast<int>(defense::PRESSING))
+    {
+        defend::fatigue++;
+    }
+    showDefense(player.defense, player.name);
+    
 
     opponent.shot = rand() % engine::FOUR + engine::ONE_UP;
     std::cout << opponent.name;
@@ -2660,6 +2664,10 @@ void deleteName(std::vector<std::string>& namesTeamOpponent, int choiceTeamName)
 
 void switchDefenseOpponent(const Player& player, Opponent& opponent)
 {
+    if ((opponent.defense == static_cast<int>(defense::PRESSING)) && (player.score - opponent.score < opponent.DIRTY_DEEP))
+    {
+        choiceDefenseOpponent(opponent.defense);
+    }
     if (player.score - opponent.score >= opponent.DIRTY_DEEP)
     {
         opponent.defense = static_cast<int>(defense::PRESSING);
