@@ -40,8 +40,7 @@ enum class defense
 enum class playerHints
 {
     EXPERT = 1,
-    AMATEUR,
-    NOOB
+    AMATEUR
 };
 
 enum class spirit
@@ -124,9 +123,9 @@ namespace menu
     const std::string HOORAY = "Поздравляем с победой команду ";
     const std::string DRAW = "Сегодня победитель не выявлен, но в следующий раз победит сильнейший!\n\n";
     const std::string WELCOME = "Добро пожаловать в игру \"Баскетбол\"\n";
-    const std::string START_MENU = "1. Правила игры.\n2. Начать игру.\n3. Режим турнира.\n4. Об авторе.\n5. Выйти из игры.\n\nДля продолжения выберете действие: ";
-    const std::string CHOICE_HINT = "Выберите режим подсказок:\n1.Опытный(без подсказок).\n2.Любитель(подсказки появляются по нажатию клавиши)\n3.Новичок(подсказки выводятся всегда)\n\nТвой выбор: ";
-    const std::string AUTHOR = "Студия разработки игр Dialas представляет.\nАвтор: Медведенко Егор(ник: mee1b).\nВерсия: 1.2.1.\n\n";
+    const std::string START_MENU = "1. Правила игры.\n2. Начать игру.\n3. Режим турнира.\n4. Об авторе.\n5. Выйти из игры.\n\nДля продолжения выберите действие: ";
+    const std::string CHOICE_HINT = "Выберите режим подсказок:\n1.Опытный(без подсказок).\n2.Любитель(подсказки появляются по нажатию клавиши)\n\nТвой выбор: ";
+    const std::string AUTHOR = "Студия разработки игр Dialas представляет.\nАвтор: Медведенко Егор(ник: mee1b).\nВерсия: 2.0.0.\n\n";
     const std::string TABLO = "Счет: ";
 }
 
@@ -535,7 +534,7 @@ void userComment(std::string userText, std::string gameText, int& userChoice)
         std::cout << gameText;
         getline(std::cin, userText);
     }
-    userChoice = stoi(userText);
+        userChoice = stoi(userText);
 }
 
 void userComment(std::string gameText, std::string& userChoice)
@@ -748,7 +747,7 @@ void hints()
     getline(std::cin, engine::userText);
     userComment(engine::userText, menu::CHOICE_HINT, menu::hint);
     recording(menu::hint);
-    while (menu::hint > static_cast<int>(playerHints::NOOB) || menu::hint < static_cast<int>(playerHints::EXPERT))
+    while ((menu::hint < static_cast<int>(playerHints::EXPERT)) || (menu::hint > static_cast<int>(playerHints::AMATEUR)))
     {
         std::cout << menu::REPEAT;
         recording(menu::REPEAT);
@@ -771,12 +770,14 @@ void gameRulesRecord()
     menu::rules =
         "Это баскетбольный клуб колледжа Алабама. "
         "Ты будешь капитаном и плеймейкером нашей команды.\n"
-        "Игра длится 2 тайма по 8 минуты. Одна атака длится 24 секунды.\n\n";
+        "Игра длится 2 тайма по 8 минут. Одна атака длится 24 секунды.\n\n";
     menu::rulesShot =
-        "Делайте броски следующим образом:\n"
+        "Делай броски следующим образом:\n"
         "1. Дальний (трехочковый) бросок в прыжке;\n2. Средний (двухочковый) бросок в прыжке;\n3. Лэй - апп (два очка);\n4. Комбинация и бросок (два очка);\n\n"
         "На попадание влияет:\n1. Защита.\n2. Командный дух.\n\n"
-        "Командный дух можно, как поднять(отличной игрой и успешным решением жизненных вопросов команды).\nТак и потерять(плохой игрой или неудачными решениями).\n"
+        "Возможность попасть дальним и средним бросками меньше, чем лэй - аппом или комбинацией, но при лэй - аппе и комбинации есть вероятность,\nчто будет сделан перехват или блок-шот!\n"
+        "Это действует как на игрока, так и на соперника!\n\n"
+        "Командный дух можно как поднять(отличной игрой и успешным решением жизненных вопросов команды),\nтак и потерять(плохой игрой или неудачными решениями).\n"
         "При максимальном подъеме командного духа(+10) открывается спецприем \"Рука бога\",\nкоторый гарантирует 100% попадание с трехочковой линии,\n"
         "но он, так же, тратит все пункты командного духа.\n"
         "При минимальном командном духе (-10) открывается спецприем \"Грязная игра\",\nкоторый с некоторой вероятностью может принести три очка,\n"
@@ -1192,14 +1193,6 @@ void choiceDefense(int& defense)
             recording(defense);
         }
     }
-    else if (menu::hint == static_cast<int>(playerHints::NOOB))
-    {
-        std::cout << "\n" << menu::rulesDefense;
-        recording(menu::rulesDefense);
-        getline(std::cin, engine::userText);
-        userComment(engine::userText, menu::rulesDefense, defense);
-        recording(defense);
-    }
     while (defense < static_cast<int>(defense::PRESSING) || defense > static_cast<int>(defense::NONE_DEFENSE))
     {
         std::cout << defend::UNKNOW_TACTICS;
@@ -1278,11 +1271,6 @@ void attackShot(int& shot, int teamSpirit)
         std::cout << attack::SHOT_CHOICE_AND_HINT;
         recording(attack::SHOT_CHOICE_AND_HINT);
         break;
-    case static_cast<int>(playerHints::NOOB):
-        std::cout << menu::rulesShot;
-        recording(menu::rulesShot);
-        std::cout << attack::SHOT_CHOICE;
-        recording(attack::SHOT_CHOICE);
     }
     getline(std::cin, engine::userText);
     userComment(engine::userText, attack::SHOT_CHOICE, shot);
@@ -1345,12 +1333,12 @@ bool playerAttack(Player& player, Opponent& opponent)
     recording(history::YOUR_TEAM_SPIRIT);
     std::cout << player.teamSpirit << std::endl;
     recording(player.teamSpirit);
-    if (player.teamSpirit <= static_cast<int>(spirit::DIRTY_SPIRIT) && (menu::hint == static_cast<int>(playerHints::AMATEUR) || menu::hint == static_cast<int>(playerHints::NOOB)))
+    if (player.teamSpirit <= static_cast<int>(spirit::DIRTY_SPIRIT) && (menu::hint == static_cast<int>(playerHints::AMATEUR)))
     {
         std::cout << attack::OPEN_DIRTY;
         recording(attack::OPEN_DIRTY);
     }
-    else if (player.teamSpirit >= static_cast<int>(spirit::GOD_SPIRIT) && (menu::hint == static_cast<int>(playerHints::AMATEUR) || menu::hint == static_cast<int>(playerHints::NOOB)))
+    else if (player.teamSpirit >= static_cast<int>(spirit::GOD_SPIRIT) && (menu::hint == static_cast<int>(playerHints::AMATEUR)))
     {
         std::cout << attack::OPEN_HAND;
         recording(attack::OPEN_HAND);
