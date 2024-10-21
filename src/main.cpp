@@ -78,8 +78,8 @@ namespace test
     bool testingEnabled{};
     const std::string TESTING_ENABLED = "РЕЖИМ ТЕСТИРОВЩИКА ВКЛЮЧЕН!\n";
     const std::string CHOICE_TEAM_SPIRIT = "\nТЕСТОВОЕ МЕНЮ:\nВыберите уровень командного духа от -10 до 10: ";
-    const std::string CHOICE_SCENE = "Выебирте одну одну кат сцену цифрами от 1 до 3.\nКат сцена номер: ";
-    const std::string NONE_SCENE = "Переход к игре без кат сцен!\n";
+    const std::string CHOICE_SCENE = "Выберите одну кат-сцену цифрами от 1 до 3.\nКат-сцена номер: ";
+    const std::string NONE_SCENE = "Переход к игре без кат-сцен!\n";
     const std::string TEST_THREE_PRESSING = "ТЕСТОВОЕ СООБЩЕНИЕ:\n1.Базовый шанс - 40%.\n2.Защита \"Прессинг\" - (-10%)\n3.Командный дух ";
     const std::string TEST_THREE_PERSONAL_DEFENSE = "ТЕСТОВОЕ СООБЩЕНИЕ:\n1.Базовый шанс - 40%.\n2.Защита \"Личная опека\" - (+15%)\n3.Командный дух ";
     const std::string TEST_THREE_ZONE_DEFENSE = "ТЕСТОВОЕ СООБЩЕНИЕ:\n1.Базовый шанс - 40%.\n2.Защита \"Зонная защита\" - (-10%)\n3.Командный дух ";
@@ -114,19 +114,19 @@ namespace menu
     std::string rulesShot{};
     std::string rulesDefense{};
     const std::string REPEAT = "Не понимаю!\nТвой выбор: ";
-    const std::string OPPONENT_NAME_CHOICE = "Нажмите клавишу Enter, для стандартного названия противника или\nВведите название команды противника: ";
+    const std::string OPPONENT_NAME_CHOICE = "Нажмите клавишу Enter для стандартного названия противника, или\nВведите название команды противника: ";
     const std::string START_DEFENSE = "Твоей стартовой защитой будет...";
     const std::string WIN_BALL_JUMP = "Судья подкидывает мяч вверх в центральном круге и...\nВбрасывание выигрывает команда: ";
     const std::string TIMEOUT = "\nЗвучит свисток, сейчас команды уйдут на перерыв!\nУслышимся после небольшой паузы!\n\n";
     const std::string SECOND_TIME = "Начинается второй тайм! ПОЕХАЛИ!!!\n\n";
-    const std::string FINAL = "Последние секунды матча истекли! Судья дает свисток!\nФинальный счет на табло:\n";
+    const std::string FINAL = "Последние секунды матча истекли! Судья даёт свисток!\nФинальный счёт на табло:\n";
     const std::string HOORAY = "Поздравляем с победой команду ";
     const std::string DRAW = "Сегодня победитель не выявлен, но в следующий раз победит сильнейший!\n\n";
     const std::string WELCOME = "Добро пожаловать в игру \"Баскетбол\"\n";
     const std::string START_MENU = "1. Правила игры.\n2. Начать игру.\n3. Режим турнира.\n4. Об авторе.\n5. Выйти из игры.\n\nДля продолжения выберите действие: ";
     const std::string CHOICE_HINT = "Выберите режим подсказок:\n1.Опытный(без подсказок).\n2.Любитель(подсказки появляются по нажатию клавиши)\n\nТвой выбор: ";
-    const std::string AUTHOR = "Студия разработки игр Dialas представляет.\nАвтор: Медведенко Егор(ник: mee1b).\nВерсия: 2.0.1\n\n";
-    const std::string TABLO = "Счет: ";
+    const std::string AUTHOR = "Студия разработки игр Dialas представляет.\nАвтор: Медведенко Егор (ник: mee1b).\nВерсия: 2.0.2\n\n";
+    const std::string TABLO = "Счёт: ";
 }
 
 namespace engine
@@ -189,7 +189,7 @@ namespace history
     const std::string STANDART_OPPONENT_NAME = "Колледж Оклахомы";
     const std::string PLAYER_TEAM_NAME = "Колледж Алабамы";
     const std::string LOSE_TOURNAMENT = "К сожалению, ты проиграл турнир.\nНо не вешай нос! Этот турнир не последний!\nУдачи в следующий раз!";
-    const std::string DRAW_TOURNAMENT = "К сожалению, ты проиграл турнир. Из-за большого количества ничьюх не хватило очков.\nНо не вешай нос! Этот турнир не последний!\nУдачи в следующий раз!";
+    const std::string DRAW_TOURNAMENT = "К сожалению, ты проиграл турнир. Из-за большого количества ничьих не хватило очков.\nНо не вешай нос! Этот турнир не последний!\nУдачи в следующий раз!";
     const std::string WIN_TOURNAMENT = "Вот он ЧЕМПИОН!!!\nСегодня все поют песни только в твою честь!\nЛюбят только тебя и твоих товарищей!\nМедали на шее, но помни расслабляться рано! Впереди ждут новые победы!!!";
     const std::string FIRST_GAME = "Первая игра турнира против команды ";
     const std::string SECOND_GAME = "Полуфинал турнира против команды ";
@@ -199,17 +199,17 @@ namespace history
 namespace attack
 {
     const std::string SHOT_CHOICE = "Капитан! Какой бросок делаем в этой атаке? ";
-    const std::string SHOT_CHOICE_AND_HINT = "Капитан! Какой бросок делаем в этой атаке?(чтобы посмотреть виды бросков нажми 5): ";
-    const std::string SUPERPOWER_HINT = "Если командных дух равен -10 или меньше:\n6.Грязная игра(три очка, плюс 10 к командному духу).\nЕсли командный дух равен 10 или больше:\n7.Рука бога(три очка, плюс 10 к командному духу).\n\n";
+    const std::string SHOT_CHOICE_AND_HINT = "Капитан! Какой бросок делаем в этой атаке? (Чтобы посмотреть виды бросков, нажми 5): ";
+    const std::string SUPERPOWER_HINT = "Если командный дух равен -10 или меньше:\n6.Грязная игра (три очка, плюс 10 к командному духу).\nЕсли командный дух равен 10 или больше:\n7.Рука бога (три очка, плюс 10 к командному духу).\n\n";
     const std::string UNKNOW_TACTICS = "На тренировках мы не разбирали такие броски, капитан!\nДавай сыграем то, что мы уже знаем!\n";
-    const std::string OPEN_DIRTY = "6.Командный дух падает, открыт прием \"Грязная игра\".\n";
-    const std::string OPEN_HAND = "7.Командный дух на подъёме, открыт прием \"Рука бога\".\n";
+    const std::string OPEN_DIRTY = "6.Командный дух падает, открыт приём \"Грязная игра\".\n";
+    const std::string OPEN_HAND = "7.Командный дух на подъёме, открыт приём \"Рука бога\".\n";
     const std::string THREE_POINT = "Трехочковый бросок!!!\n";
     const std::string ADD_THREE = "Три очка в корзине!!!\n";
     const std::string LOSE_SHOT = "Промах! Мяч в воздухе, кто же им завладеет?\n";
     const std::string MEDIUM_SHOT = "Средний бросок!!!\n";
     const std::string ADD_TWO = "Два очка в корзине!!!\n";
-    const std::string LAY_UP = "Это же лэй - апп!!!\n";
+    const std::string LAY_UP = "Это же лэй-ап!!!\n";
     const std::string COMBINATION = "Смотрите, игроки разыгрывают комбинацию!!!\n";
     const std::string ADD_HAND = "КАКАЯ ТРАЕКТОРИЯ ПОЛЕТА!!!\nНе бросок, а заглядение.\nТри очка в корзине!\n\n";
     const std::string RESET_HAND = "Это был великолепный бросок!\nНо видимо он отнял много сил у игроков, перед следующим броском команде нужно собраться!\n\n";
@@ -218,11 +218,11 @@ namespace attack
     const std::string REALESE_DIRTY_PENALTY = " реализует штрафной бросок!\n\n";
     const std::string IN_ATTACK = " в атаке:\n";
     const std::string REBOUND_IN_ATTACK = "\nПодбор в атаке за командой: ";
-    const std::string STEAL_GOOD = "Мяч перехвачен!\n\nМяч достается команде ";
-    const std::string BLOCK_GOOD = "Вот это БЛОК-ШОТ!\n\nМяч достается команде ";
+    const std::string STEAL_GOOD = "Мяч перехвачен!\n\nМяч достаётся команде ";
+    const std::string BLOCK_GOOD = "Вот это БЛОК-ШОТ!\n\nМяч достаётся команде ";
     bool steal{ false };
     bool block{ false };
-    
+
 }
 
 namespace defend
@@ -317,7 +317,7 @@ int main()
 {
     SetConsoleCP(1251);
     SetConsoleOutputCP(1251);
-    srand(static_cast<unsigned int>(time(0)));
+    srand(static_cast<unsigned int>(time(NULL)));
     record.open(engine::USER_HISTORY_FILE);
     record.close();
 
@@ -329,6 +329,7 @@ int main()
     startMenu(player, opponent);
     while (menu::startGame != menu::EXIT_GAME)
     {
+
         if (menu::startGame == menu::TOURNAMENT)
         {
             engine::resoultTournament = tournament(player, opponent);
@@ -359,7 +360,6 @@ int main()
         else if (menu::startGame == menu::ONE_GAME)
         {
             hints();
-            
 
             std::cout << menu::OPPONENT_NAME_CHOICE;
             recording(menu::OPPONENT_NAME_CHOICE);
@@ -552,7 +552,6 @@ void userComment(std::string gameText, std::string& userChoice)
 int tournament(Player& player, Opponent& opponent)
 {
     int gamesDraw{ 0 };
-    defend::fatigue = 0;
     std::vector<std::string> namesTeamOpponent{ "Колледж Иллинойс", "Колледж Вашингтона", "Колледж Аляски", "Колледж Огайо", "Далласский колледж", "Колледж Техаса", "Колледж Минесоты", "Колледж Аризоны"};
 
     int choiceTeamName{};
@@ -693,6 +692,7 @@ void startMenu(Player& player, Opponent& opponent)
     opponent.score = engine::ZERO;
     player.teamSpirit = engine::ZERO;
     opponent.teamSpiritOpponent = engine::ZERO;
+    defend::fatigue = engine::ZERO;
     system("cls");
     std::cout << menu::WELCOME;
     recording(menu::WELCOME);
@@ -1168,6 +1168,7 @@ void choiceDefense(int& defense)
     if ((defend::fatigue > engine::ZERO && defense == static_cast<int>(defense::NONE_DEFENSE)) || (defense == static_cast<int>(defense::PRESSING) && defend::fatigue == defend::SEVERE_FATIGUE))
     {
         std::cout << defend::RELAX;
+        recording(defend::RELAX);
         return;
     }
     if (menu::hint == static_cast<int>(playerHints::EXPERT))
