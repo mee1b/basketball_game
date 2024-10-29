@@ -20,7 +20,7 @@ struct Opponent
     int defense{};
     int teamSpiritOpponent{ 0 };
     int probalityDirtyGame{};
-    const int PROCENT_DIRTY_GAME = 80;
+    const int PROCENT_DIRTY_GAME = 50;
     const int DIRTY_DEEP = 5;
     const int ENTER_ON_DIRTY = 30;
     std::string name{};
@@ -34,6 +34,6 @@ struct Player
     int defense{};
     int teamSpirit{};
     int probalityDirtyGame{};
-    const int PROCENT_DIRTY_GAME{ 30 };
+    const int PROCENT_DIRTY_GAME{ 60 };
     std::string name{};
 };
